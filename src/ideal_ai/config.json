@@ -1,0 +1,357 @@
+{
+  "families": {
+    "ollama_text": {
+      "formatter": "_format_for_ollama",
+      "caller": "_call_ollama",
+      "parser": "_parse_ollama",
+      "url_template": "$ollama_url/api/chat"
+    },
+    "openai_compatible": {
+      "formatter": "_format_for_openai_style",
+      "caller": "_call_http_post",
+      "parser": "_parse_openai_style",
+      "headers_template": {
+        "Authorization": "Bearer $api_key",
+        "Content-Type": "application/json"
+      }
+    },
+    "google_sdk_text": {
+      "formatter": "_format_for_google_text",
+      "caller": "_call_google_sdk_text",
+      "parser": "_parse_google",
+      "api_type": "sdk"
+    },
+    "alibaba_api": {
+      "formatter": "_format_for_qwen",
+      "caller": "_call_http_post",
+      "parser": "_parse_qwen",
+      "headers_template": {
+        "Authorization": "Bearer $api_key",
+        "Content-Type": "application/json"
+      },
+      "url_template": "https://dashscope-intl.aliyuncs.com/api/v1/services/aigc/text-generation/generation"
+    },
+    "huggingface_api": {
+      "formatter": "_format_for_huggingface",
+      "caller": "_call_http_post",
+      "parser": "_parse_huggingface",
+      "headers_template": {
+        "Authorization": "Bearer $api_key",
+        "Content-Type": "application/json"
+      },
+      "url_template": "https://api-inference.huggingface.co/models/$model_id"
+    },
+    "anthropic_api": {
+      "formatter": "_format_for_anthropic",
+      "caller": "_call_http_post",
+      "parser": "_parse_anthropic",
+      "headers_template": {
+        "x-api-key": "$api_key",
+        "anthropic-version": "2023-06-01",
+        "Content-Type": "application/json"
+      },
+      "url_template": "https://api.anthropic.com/v1/messages"
+    },
+    "google_sdk_vision": {
+      "formatter": "_format_for_google_vision",
+      "caller": "_call_google_sdk_vision",
+      "parser": "_parse_google",
+      "api_type": "sdk"
+    },
+    "anthropic_vision_api": {
+      "formatter": "_format_for_anthropic_vision",
+      "caller": "_call_http_post",
+      "parser": "_parse_anthropic",
+      "headers_template": {
+        "x-api-key": "$api_key",
+        "anthropic-version": "2023-06-01",
+        "Content-Type": "application/json"
+      },
+      "url_template": "https://api.anthropic.com/v1/messages"
+    },
+    "ollama_vision": {
+      "formatter": "_format_for_ollama_vision",
+      "caller": "_call_ollama",
+      "parser": "_parse_ollama",
+      "url_template": "$ollama_url/api/chat"
+    },
+    "ollama_vision_generate": {
+      "formatter": "_format_for_ollama_vision_generate",
+      "caller": "_call_ollama",
+      "parser": "_parse_ollama_generate",
+      "url_template": "$ollama_url/api/generate"
+    },
+    "openai_vision_compatible": {
+      "formatter": "_format_for_openai_vision_style",
+      "caller": "_call_http_post",
+      "parser": "_parse_openai_style",
+      "headers_template": {
+        "Authorization": "Bearer $api_key",
+        "Content-Type": "application/json"
+      }
+    },
+    "infomaniak_whisper": {
+      "formatter": "_format_for_whisper",
+      "caller": "_call_and_poll_infomaniak_whisper",
+      "parser": "_parse_whisper_final_response",
+      "headers_template": {
+        "Authorization": "Bearer $api_key"
+      },
+      "url_template": "https://api.infomaniak.com/1/ai/$infomaniak_product/openai/audio/transcriptions"
+    },
+    "openai_tts_api": {
+      "formatter": "_format_for_openai_tts",
+      "caller": "_call_http_post_binary",
+      "parser": "_parse_audio_output",
+      "headers_template": {
+        "Authorization": "Bearer $api_key",
+        "Content-Type": "application/json"
+      }
+    },
+    "openai_image_gen_api": {
+      "formatter": "_format_for_image_gen",
+      "caller": "_call_http_post",
+      "parser": "_parse_image_gen_response",
+      "headers_template": {
+        "Authorization": "Bearer $api_key",
+        "Content-Type": "application/json"
+      }
+    },
+    "alibaba_video_gen": {
+      "formatter": "_format_for_alibaba_video_gen",
+      "caller": "_call_and_poll_alibaba_video",
+      "parser": "_parse_alibaba_video_gen",
+      "headers_template": {
+        "Authorization": "Bearer $api_key",
+        "Content-Type": "application/json",
+        "X-DashScope-Async": "enable"
+      },
+      "url_template": "https://dashscope-intl.aliyuncs.com/api/v1/services/aigc/video-generation/video-synthesis",
+      "poll_url_template": "https://dashscope-intl.aliyuncs.com/api/v1/tasks/$task_id"
+    }
+  },
+  "models": {
+    "google:gemini-2.5-flash": {
+      "api_key_name": "google",
+      "families": {
+        "text": "google_sdk_text",
+        "vision": "google_sdk_vision"
+      }
+    },
+    "infomaniak:mixtral": {
+      "api_key_name": "infomaniak",
+      "families": {
+        "text": "openai_compatible"
+      },
+      "url_template": "https://api.infomaniak.com/1/ai/$infomaniak_product/openai/chat/completions"
+    },
+    "openai:gpt-4o": {
+      "api_key_name": "openai",
+      "families": {
+        "text": "openai_compatible",
+        "vision": "openai_vision_compatible"
+      },
+      "url_template": "https://api.openai.com/v1/chat/completions"
+    },
+    "openai:gpt-3.5-turbo": {
+      "api_key_name": "openai",
+      "families": {
+        "text": "openai_compatible"
+      },
+      "url_template": "https://api.openai.com/v1/chat/completions"
+    },
+    "openai:gpt-5-2025-08-07": {
+      "api_key_name": "openai",
+      "families": {
+        "text": "openai_compatible",
+        "vision": "openai_vision_compatible"
+      },
+      "url_template": "https://api.openai.com/v1/chat/completions",
+      "temperature": 1.0
+    },
+    "openai:gpt-5": {
+      "api_key_name": "openai",
+      "families": {
+        "text": "openai_compatible",
+        "vision": "openai_vision_compatible"
+      },
+      "url_template": "https://api.openai.com/v1/chat/completions",
+      "temperature": 1.0
+    },
+    "moonshot:kimi-k2-0905-preview": {
+      "api_key_name": "moonshot",
+      "families": {
+        "text": "openai_compatible"
+      },
+      "url_template": "https://api.moonshot.ai/v1/chat/completions"
+    },
+    "moonshot:moonshot-v1-8k-vision-preview": {
+      "api_key_name": "moonshot",
+      "families": {
+        "text": "openai_compatible",
+        "vision": "openai_vision_compatible"
+      },
+      "url_template": "https://api.moonshot.ai/v1/chat/completions"
+    },
+    "minimax:MiniMax-M2": {
+      "api_key_name": "minimax",
+      "families": {
+        "text": "openai_compatible"
+      },
+      "url_template": "https://api.minimax.io/v1/chat/completions",
+      "parser": "_parse_minimax_clean"
+    },
+    "alibaba:qwen-turbo": {
+      "api_key_name": "alibaba",
+      "families": {
+        "text": "alibaba_api"
+      }
+    },
+    "alibaba:qwen-plus": {
+      "api_key_name": "alibaba",
+      "families": {
+        "text": "openai_compatible"
+      },
+      "url_template": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions",
+      "api_model_name": "qwen-plus"
+    },
+    "alibaba:qwen3-max": {
+      "api_key_name": "alibaba",
+      "families": {
+        "text": "openai_compatible"
+      },
+      "url_template": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions",
+      "api_model_name": "qwen3-max"
+    },
+    "ollama:gemma3:1b": {
+      "families": {
+        "text": "ollama_text"
+      }
+    },
+    "ollama:llava": {
+      "families": {
+        "text": "ollama_text",
+        "vision": "ollama_vision"
+      }
+    },
+    "ollama:qwen3-vl:30b": {
+      "families": {
+        "text": "ollama_text",
+        "vision": "ollama_vision"
+      }
+    },
+    "ollama:gemma3:12b": {
+      "families": {
+        "text": "ollama_text",
+        "vision": "ollama_vision_generate"
+      }
+    },
+    "ollama:gemma3:4b": {
+      "families": {
+        "text": "ollama_text",
+        "vision": "ollama_vision_generate"
+      }
+    },
+    "ollama:qwen2:7b": {
+      "families": {
+        "text": "ollama_text"
+      }
+    },
+    "ollama:qwen3:30b": {
+      "families": {
+        "text": "ollama_text"
+      }
+    },
+    "ollama:deepseek-r1:8b": {
+      "families": {
+        "text": "ollama_text"
+      }
+    },
+    "ollama:llama3.2": {
+      "families": {
+        "text": "ollama_text"
+      }
+    },
+    "perplexity:sonar": {
+      "api_key_name": "perplexity",
+      "families": {
+        "text": "openai_compatible"
+      },
+      "url_template": "https://api.perplexity.ai/chat/completions"
+    },
+    "huggingface:gpt-oss-120b": {
+      "api_key_name": "hugging_face",
+      "families": {
+        "text": "openai_compatible"
+      },
+      "url_template": "https://router.huggingface.co/v1/chat/completions",
+      "api_model_name": "openai/gpt-oss-120b:fastest"
+    },
+    "anthropic:claude-haiku-4-5-20251001": {
+      "api_key_name": "anthropic",
+      "families": {
+        "text": "anthropic_api",
+        "vision": "anthropic_vision_api"
+      }
+    },
+    "anthropic:claude-haiku-4-5": {
+      "inherit_from": "claude-haiku-4-5-20251001"
+    },
+    "infomaniak:whisper": {
+      "api_key_name": "infomaniak",
+      "families": {
+        "audio": "infomaniak_whisper"
+      }
+    },
+    "openai:tts-1": {
+      "api_key_name": "openai",
+      "families": {
+        "speech_gen": "openai_tts_api"
+      },
+      "url_template": "https://api.openai.com/v1/audio/speech"
+    },
+    "openai:tts-1-hd": {
+      "api_key_name": "openai",
+      "families": {
+        "speech_gen": "openai_tts_api"
+      },
+      "url_template": "https://api.openai.com/v1/audio/speech"
+    },
+    "infomaniak:flux-schnell": {
+      "api_key_name": "infomaniak",
+      "families": {
+        "image_gen": "openai_image_gen_api"
+      },
+      "api_model_name": "flux",
+      "url_template": "https://api.infomaniak.com/1/ai/$infomaniak_product/openai/images/generations"
+    },
+    "openai:dall-e-3": {
+      "api_key_name": "openai",
+      "families": {
+        "image_gen": "openai_image_gen_api"
+      },
+      "url_template": "https://api.openai.com/v1/images/generations"
+    },
+    "alibaba:wan2.2-t2v-plus": {
+      "api_key_name": "alibaba",
+      "families": {
+        "video_gen": "alibaba_video_gen"
+      },
+      "api_model_name": "wan2.2-t2v-plus"
+    },
+    "alibaba:wan2.1-t2v-turbo": {
+      "api_key_name": "alibaba",
+      "families": {
+        "video_gen": "alibaba_video_gen"
+      },
+      "api_model_name": "wan2.1-t2v-turbo"
+    },
+    "alibaba:wan2.5-t2v-preview": {
+      "api_key_name": "alibaba",
+      "families": {
+        "video_gen": "alibaba_video_gen"
+      },
+      "api_model_name": "wan2.5-t2v-preview"
+    }
+  }
+}
