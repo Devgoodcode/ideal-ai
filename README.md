@@ -3,9 +3,11 @@
 > **One Connector to Rule Them All**
 
 A production-ready Python package providing a unified interface for multiple AI providers: Ollama, OpenAI, Google Gemini, Anthropic Claude, Alibaba Qwen, and more.
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Devgoodcode/ideal-ai/blob/main/examples/demo_ideal_universal_connector.ipynb)
+
+[![PyPI version](https://img.shields.io/pypi/v/ideal-ai.svg)](https://pypi.org/project/ideal-ai/)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Devgoodcode/ideal-ai/blob/main/examples/demo.ipynb)
+[![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/Idealcom/ideal-ai-llm-connector-demo)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 
 ## ✨ Features
 
@@ -15,6 +17,12 @@ A production-ready Python package providing a unified interface for multiple AI 
 - **🤖 Agent-Ready** - Built-in Smolagents wrapper for AI agents
 - **🛡️ Production-Grade** - Async polling, binary handling, error recovery
 - **📦 PIP-Installable** - `pip install ideal-ai`
+
+## 📺 See it in action
+
+[![Watch the Demo](https://img.youtube.com/vi/f1DwFRpo2HA/0.jpg)](https://www.youtube.com/watch?v=f1DwFRpo2HA)
+
+> *One Connector to Rule Them All. Watch the full demo (2.50 min).*
 
 ## 🚀 Quick Start
 
@@ -306,9 +314,11 @@ OLLAMA_URL=http://localhost:11434
 ## 📖 Documentation
 
 For detailed API documentation, see:
-- [Connector API](src/ideal_ai/connector.py) - Full method signatures with docstrings
-- [Configuration Schema](src/ideal_ai/config.json) - Available families and models
-- [Examples](examples/) - Working code samples
+
+- [GitHub Repository](https://github.com/Devgoodcode/ideal-ai)
+- [Connector API](https://github.com/Devgoodcode/ideal-ai/blob/main/src/ideal_ai/connector.py) - Full method signatures with docstrings
+- [Configuration Schema](https://github.com/Devgoodcode/ideal-ai/blob/main/src/ideal_ai/config.json) - Available families and models
+- [Examples](https://github.com/Devgoodcode/ideal-ai/tree/main/examples) - Working code samples
 
 ## 🤝 Contributing
 
@@ -324,17 +334,30 @@ No Python code changes needed for most additions!
 
 Apache License 2.0 - See [LICENSE](LICENSE) file for details.
 
-## 👤 Author
+## 👤 Author & Support
 
 **Gilles Blanchet**
-- 🌐 Agency: [Idealcom.ch](https://idealcom.ch) | [IA-Agence.ai](https://ia-agence.ai)
-- 📧 Email: gblanchet@idealcom.ch
+- 🛠️ Created by: [IA-Agence.ai](https://ia-agence.ai/ideal-ai-universal-llm-connector/) - *Need help integrating Generative AI? Let's talk.*
+- 🌐 Agency: [Idealcom.ch](https://idealcom.ch)
 - 🐙 GitHub: [@Devgoodcode](https://github.com/Devgoodcode)
 - 💼 LinkedIn: [Gilles Blanchet](https://www.linkedin.com/in/gilles-blanchet-566ab759/)
 
 ## 🙏 Acknowledgments
 
+This project is a labor of love, built on the shoulders of giants. Special thanks to:
+
+* **🤗 Hugging Face**: For the fantastic *Agents Course*. It inspired me to create this connector to easily apply their concepts using my own existing tools (like Ollama & Infomaniak) without the hassle of writing wrappers.
+* **My AI Co-pilots & Mentors**:
+    * **Microsoft Copilot**: For the architectural breakthroughs (Families & Invoke concepts) and our late-night debates.
+    * **Perplexity**: For laying down the initial code foundation.
+    * **Google Gemini**: For the massive refactoring, patience, and pedagogical support in improving the core logic.
+    * **Kilo Code (Kimi & Claude)**: For the security testing, English translation, and PyPI publishing preparation.
+* **The Model Providers**: Ollama, Alibaba, Moonshot, MiniMax, OpenAI, and Infomaniak for their incredible technologies and platforms.
+* **The Open Source Community**: For the endless passion and knowledge sharing.
+
 Built with ❤️ and passion, inspired by the open source AI community's need for a truly universal, maintainable LLM interface.
+
+*The adventure is just beginning...*
 
 ---
 
