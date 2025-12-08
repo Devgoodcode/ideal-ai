@@ -352,7 +352,7 @@ This project is a labor of love, built on the shoulders of giants. Special thank
     * **Perplexity**: For laying down the initial code foundation.
     * **Google Gemini**: For the massive refactoring, patience, and pedagogical support in improving the core logic.
     * **Kilo Code (Kimi & Claude)**: For the security testing, English translation, and PyPI publishing preparation.
-* **The Model Providers**: Ollama, Alibaba, Moonshot, MiniMax, OpenAI, and Infomaniak for their incredible technologies and platforms.
+* **The Model Providers**: Ollama, Alibaba, Moonshot, MiniMax, OpenAI, Perplexity, Hugging Face, Anthropic, LangChain and Infomaniak for their incredible technologies and platforms.
 * **The Open Source Community**: For the endless passion and knowledge sharing.
 
 Built with ❤️ and passion, inspired by the open source AI community's need for a truly universal, maintainable LLM interface.
