@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ideal-ai"
-version = "0.1.1"
-description = "One Connector to Rule Them All. The ultimate universal Python interface for LLMs, Vision, Audio & Image Gen (Ollama, OpenAI, Google, Anthropic, Mistral, Alibaba & more)."
+version = "0.2.0"
+description = "One Connector to Rule Them All. The ultimate universal Python interface for LLMs, Vision, Audio & Image Gen (Ollama, OpenAI, Google, Anthropic, Mistral, DeepSeek, Alibaba & more)."
 readme = "README.md"
 requires-python = ">=3.10"
 license = "Apache-2.0"

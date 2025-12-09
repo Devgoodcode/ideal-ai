@@ -131,12 +131,29 @@
     }
   },
   "models": {
-    "google:gemini-2.5-flash": {
-      "api_key_name": "google",
+    "deepseek:v3": {
+      "api_key_name": "deepseek",
       "families": {
-        "text": "google_sdk_text",
-        "vision": "google_sdk_vision"
-      }
+        "text": "openai_compatible"
+      },
+      "url_template": "https://api.deepseek.com/chat/completions",
+      "api_model_name": "deepseek-chat"
+    },
+    "deepseek:r1": {
+      "api_key_name": "deepseek",
+      "families": {
+        "text": "openai_compatible"
+      },
+      "url_template": "https://api.deepseek.com/chat/completions",
+      "api_model_name": "deepseek-reasoner"
+    },
+    "infomaniak:apertus-70b": {
+      "api_key_name": "infomaniak",
+      "families": {
+        "text": "openai_compatible"
+      },
+      "url_template": "https://api.infomaniak.com/2/ai/$infomaniak_product/openai/v1/chat/completions",
+      "api_model_name": "swiss-ai/Apertus-70B-Instruct-2509"
     },
     "infomaniak:mixtral": {
       "api_key_name": "infomaniak",
@@ -144,6 +161,13 @@
         "text": "openai_compatible"
       },
       "url_template": "https://api.infomaniak.com/1/ai/$infomaniak_product/openai/chat/completions"
+    },
+    "google:gemini-2.5-flash": {
+      "api_key_name": "google",
+      "families": {
+        "text": "google_sdk_text",
+        "vision": "google_sdk_vision"
+      }
     },
     "openai:gpt-4o": {
       "api_key_name": "openai",

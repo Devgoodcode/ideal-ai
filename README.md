@@ -2,7 +2,7 @@
 
 > **One Connector to Rule Them All**
 
-A production-ready Python package providing a unified interface for multiple AI providers: Ollama, OpenAI, Google Gemini, Anthropic Claude, Alibaba Qwen, and more.
+A production-ready Python package providing a unified interface for multiple AI providers: Ollama, OpenAI, Google Gemini, DeepSeek, Anthropic Claude, Alibaba Qwen, and more.
 
 [![PyPI version](https://img.shields.io/pypi/v/ideal-ai.svg)](https://pypi.org/project/ideal-ai/)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Devgoodcode/ideal-ai/blob/main/examples/demo_ideal_universal_connector.ipynb)
@@ -76,16 +76,20 @@ result = connector.invoke_image_generation(
 # result["images"] contains base64 or URLs
 ```
 
-## 🎯 Supported Providers & Modalities
+## 🎯 Pre-Configured Providers (Out-of-the-Box)
+
+The following providers are pre-registered in `config.json` for immediate use.
+**Note:** You can easily **inject any other model** or provider (OpenAI-compatible, Ollama, etc.) at runtime without changing the package code.
 
 | Provider | Text | Vision | Audio | Speech | Image Gen | Video Gen |
-|----------|------|--------|-------|--------|-----------|-----------|
+|----------|:----:|:------:|:-----:|:------:|:---------:|:---------:|
 | **OpenAI** | ✅ | ✅ | - | ✅ | ✅ | - |
 | **Google (Gemini)** | ✅ | ✅ | - | - | - | - |
 | **Anthropic (Claude)** | ✅ | ✅ | - | - | - | - |
 | **Ollama (Local)** | ✅ | ✅ | - | - | - | - |
 | **Alibaba (Qwen)** | ✅ | - | - | - | - | ✅ |
 | **Infomaniak** | ✅ | - | ✅ | - | ✅ | - |
+| **DeepSeek** | ✅ | - | - | - | - | - |
 | **Moonshot AI** | ✅ | ✅ | - | - | - | - |
 | **Perplexity** | ✅ | - | - | - | - | - |
 | **Hugging Face** | ✅ | - | - | - | - | - |
@@ -196,6 +200,30 @@ agent = CodeAgent(tools=[...], model=model)
 agent.run("Build a web scraper for news articles")
 ```
 
+## 🦜🔗 LangChain & LangGraph Ready
+
+Ideal AI fits perfectly into **LangGraph** nodes or **LangChain** workflows. No complex wrappers needed—just call it directly inside your nodes.
+
+```python
+from ideal_ai import IdealUniversalLLMConnector
+from langgraph.graph import StateGraph
+
+connector = IdealUniversalLLMConnector(api_keys={...})
+
+# Use directly in a LangGraph node
+def chatbot_node(state):
+    response = connector.invoke(
+        provider="deepseek",       # Switch provider instantly!
+        model_id="deepseek-chat",
+        messages=state["messages"]
+    )
+    return {"messages": [response["text"]]}
+
+# Build your graph...
+workflow = StateGraph(dict)
+workflow.add_node("chatbot", chatbot_node)
+```
+
 ## 🔧 Configuration System
 
 Ideal AI uses a two-level configuration system:
@@ -286,17 +314,17 @@ OLLAMA_URL=http://localhost:11434
 ### Text Generation
 - OpenAI: `gpt-4o`, `gpt-3.5-turbo`, `gpt-5`
 - Google: `gemini-2.5-flash`
+- DeepSeek: `deepseek-chat` (V3), `deepseek-reasoner` (R1)
+- Infomaniak: `apertus-70b` (Souverain), `mixtral`
 - Anthropic: `claude-haiku-4-5`
-- Ollama: `llama3.2`, `qwen2:7b`, `deepseek-r1:8b`, `gemma3:1b`
 - Alibaba: `qwen-turbo`, `qwen-plus`, `qwen3-max`
-- Others: Moonshot, Perplexity, Hugging Face, MiniMax
+- Ollama: `llama3.2`, `qwen2:7b`, `deepseek-r1:8b`
 
 ### Vision/Multimodal
 - OpenAI: `gpt-4o`
 - Google: `gemini-2.5-flash`
 - Anthropic: `claude-haiku-4-5`
 - Ollama: `llava`, `qwen3-vl:30b`
-- Moonshot: `moonshot-v1-8k-vision-preview`
 
 ### Audio Transcription
 - Infomaniak: `whisper`
@@ -352,7 +380,7 @@ This project is a labor of love, built on the shoulders of giants. Special thank
     * **Perplexity**: For laying down the initial code foundation.
     * **Google Gemini**: For the massive refactoring, patience, and pedagogical support in improving the core logic.
     * **Kilo Code (Kimi & Claude)**: For the security testing, English translation, and PyPI publishing preparation.
-* **The Model Providers**: Ollama, Alibaba, Moonshot, MiniMax, OpenAI, Perplexity, Hugging Face, Anthropic, LangChain and Infomaniak for their incredible technologies and platforms.
+* **The Model Providers**: Ollama, Alibaba, Moonshot, MiniMax, OpenAI, Perplexity, Hugging Face, DeepSeek, Apertus, Anthropic, LangChain and Infomaniak for their incredible technologies and platforms.
 * **The Open Source Community**: For the endless passion and knowledge sharing.
 
 Built with ❤️ and passion, inspired by the open source AI community's need for a truly universal, maintainable LLM interface.
