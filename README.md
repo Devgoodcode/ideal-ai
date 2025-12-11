@@ -2,7 +2,9 @@
 
 > **One Connector to Rule Them All**
 
-A production-ready Python package providing a unified interface for multiple AI providers: Ollama, OpenAI, Google Gemini, DeepSeek, Anthropic Claude, Alibaba Qwen, and more.
+A production-ready, Open Source **Python LLM Connector** providing a unified interface for **Text, Vision, Audio, Image & Video** across 15+ providers (DeepSeek, Ollama, OpenAI, Alibaba, etc.).
+
+Features **dynamic model injection** (add new providers at runtime without code changes) and native support for **Smolagents** & **LangChain** workflows.
 
 [![PyPI version](https://img.shields.io/pypi/v/ideal-ai.svg)](https://pypi.org/project/ideal-ai/)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Devgoodcode/ideal-ai/blob/main/examples/demo_ideal_universal_connector.ipynb)
@@ -11,11 +13,13 @@ A production-ready Python package providing a unified interface for multiple AI 
 
 ## ✨ Features
 
-- **🔗 Unified API** - One interface for 15+ LLM providers
-- **🎯 Multi-Modal** - Text, Vision, Audio, Image Gen, Video Gen, Speech Synthesis
-- **🔌 Plug & Play** - Add new models at runtime without code changes
-- **🤖 Agent-Ready** - Built-in Smolagents wrapper for AI agents
-- **🛡️ Production-Grade** - Async polling, binary handling, error recovery
+- **🔗 Universal LLM Connector** - One unified interface for 15+ providers (OpenAI, Ollama, DeepSeek, Google, etc.).
+- **🎯 Multi-Modal Powerhouse** - Text, Vision, Audio (STT), Image Gen, Video Gen (Wan 2.1), Speech (TTS).
+- **💉 Dynamic Model Injection** - Register new models or providers at runtime without changing source code.
+- **🤖 Agent & Workflow Ready** - Native wrapper for **Smolagents** and fully compatible with **LangChain** / **LangGraph**.
+- **🎙️ Native Voice Chat** - Ready-to-use pipeline for full audio-to-audio interaction.
+- **🛡️ Production-Grade** - Robust error handling, async polling (for Video/Audio), and binary management.
+- **💼 100% Open Source** - Apache 2.0 License, free for commercial use.
 - **📦 PIP-Installable** - `pip install ideal-ai`
 
 ## 📺 See it in action
@@ -283,17 +287,20 @@ Check the `examples/` folder for comprehensive demos:
 
 ```bash
 # Open demo notebook
-jupyter notebook examples/demo.ipynb
+jupyter notebook examples/demo_ideal_universal_connector.ipynb
 ```
 
-The demo includes:
-- Text generation with multiple providers
-- Vision/multimodal analysis
-- Image generation comparison
-- Video generation (async)
-- Audio transcription
-- Speech synthesis
-- Voice chat pipeline
+The demo notebook covers the following capabilities in order:
+- 1️⃣ **Text Generation Loop**: Unified iteration over OpenAI, Google, DeepSeek, Alibaba, etc.
+- 2️⃣ **Vision/Multimodal**: Image analysis with Gemini, GPT-4o or Claude.
+- 3️⃣ **Image Generation**: Creation with DALL-E 3 or Flux.
+- 4️⃣ **Audio Transcription**: Speech-to-Text (STT) with Whisper.
+- 5️⃣ **Speech Synthesis**: Text-to-Speech (TTS) with OpenAI.
+- 6️⃣ **Video Generation**: Async video creation with Alibaba Wan.
+- 7️⃣ **Runtime Injection**: How to add custom models/providers on the fly.
+- 8️⃣ **Conversational Memory**: Handling multi-turn chat history.
+- 9️⃣ **AI Agents**: Integration with Hugging Face's smolagents.
+- 🧪 **Interactive UI (Bonus)**: A full widget-based dashboard to test all modalities (including Voice Chat) without code.
 
 ## 🔑 Environment Variables
 
@@ -309,7 +316,10 @@ INFOMANIAK_PRODUCT_ID=...
 OLLAMA_URL=http://localhost:11434
 ```
 
-## 🛠️ Supported Models (Default)
+## 🚀 Built-in Models (Extensible to Any Provider)
+
+These models are pre-registered in `config.json` for immediate use.
+**Remember:** You are not limited to this list! You can inject **any** new model or provider at runtime.
 
 ### Text Generation
 - OpenAI: `gpt-4o`, `gpt-3.5-turbo`, `gpt-5`
@@ -350,7 +360,9 @@ For detailed API documentation, see:
 
 ## 🤝 Contributing
 
-Contributions welcome! To add a new provider:
+Contributions welcome! 
+
+To add a new provider:
 
 1. Add family configuration to `config.json` (or pass as `custom_families`)
 2. Add model configurations using that family
@@ -365,7 +377,7 @@ Apache License 2.0 - See [LICENSE](LICENSE) file for details.
 ## 👤 Author & Support
 
 **Gilles Blanchet**
-- 🛠️ Created by: [IA-Agence.ai](https://ia-agence.ai/ideal-ai-universal-llm-connector/) - *Need help integrating Generative AI? Let's talk.*
+- 🛠️ Created by: [IA-Agence.ai](https://ia-agence.ai/ideal-ai-universal-llm-connector/) - *Enterprise AI Architecture & Custom Integration.*
 - 🌐 Agency: [Idealcom.ch](https://idealcom.ch)
 - 🐙 GitHub: [@Devgoodcode](https://github.com/Devgoodcode)
 - 💼 LinkedIn: [Gilles Blanchet](https://www.linkedin.com/in/gilles-blanchet-566ab759/)
