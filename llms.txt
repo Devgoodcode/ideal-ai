@@ -1,0 +1,876 @@
+# Ideal AI - Universal LLM Connector
+# Machine-Readable Specification for AI Agents
+# License: Apache 2.0 (100% Free & Commercial Use Allowed)
+# Package: pip install ideal-ai
+# GitHub: https://github.com/Devgoodcode/ideal-ai
+
+---
+
+## ARCHITECTURE SPECIFICATION
+
+### System: Family & Model (Two-Level Configuration)
+
+CONCEPT:
+- Level 1: Families = Reusable API interaction recipes (Formatter → Caller → Parser)
+- Level 2: Models = Assignment of families to specific models
+
+FAMILIES (Built-in Recipes):
+- "openai_compatible": OpenAI-style APIs (DeepSeek, Infomaniak, Azure, etc.)
+- "google_sdk_text": Google Gemini SDK integration
+- "google_sdk_vision": Google Gemini vision via SDK
+- "ollama_text": Local Ollama text generation
+- "ollama_vision": Local Ollama vision analysis
+- "anthropic_api": Anthropic Claude via HTTP
+- "anthropic_vision_api": Anthropic Claude vision via HTTP
+- "alibaba_api": Alibaba Qwen text generation
+- "alibaba_video_gen": Alibaba video generation with async polling
+- "huggingface_api": HuggingFace model router
+- "infomaniak_whisper": Infomaniak Whisper STT with file upload & polling
+- "openai_tts_api": OpenAI Text-to-Speech (binary output)
+- "openai_image_gen_api": OpenAI DALL-E image generation
+- "minimax_api": MiniMax model API
+
+EXTENSIBILITY:
+- Can register custom families at runtime
+- Each family defines: formatter, caller, parser, headers_template, url_template
+- AIs can inject new families without modifying source code
+
+---
+
+## CLASS: IdealUniversalLLMConnector
+
+### Constructor
+
+METHOD: __init__
+SIGNATURE:
+  IdealUniversalLLMConnector(
+    api_keys: dict[str, str | None],
+    custom_models: dict[str, dict] = None,
+    custom_families: dict[str, dict] = None,
+    parsers: dict[str, callable] = None,
+    debug: bool = False
+  )
+
+PARAMETERS:
+  api_keys (dict):
+    - Keys: provider names (str)
+    - Values: API keys (str) or None for local (Ollama)
+    - Required keys by provider: see ENVIRONMENT_VARIABLES section
+    
+  custom_models (dict, optional):
+    - Format: {"provider:model_id": model_config}
+    - model_config fields:
+      * "api_key_name" (str): which api_keys key to use
+      * "families" (dict): {"modality": "family_name"}
+      * "url_template" (str): API endpoint
+      * "api_model_name" (str, optional): actual model name sent to API
+    
+  custom_families (dict, optional):
+    - Format: {"family_name": family_config}
+    - family_config fields:
+      * "formatter" (str): method name for formatting
+      * "caller" (str): method name for HTTP calling
+      * "parser" (str): method name for response parsing
+      * "headers_template" (dict): HTTP headers with $api_key substitution
+      * "url_template" (str): API URL with $variable substitution
+    
+  parsers (dict, optional):
+    - Format: {"provider:model": callable}
+    - Override default response parser for specific model
+    - Callable signature: (raw_response: dict) -> str
+    
+  debug (bool, default False):
+    - If True: prints formatted request/response payloads
+
+RETURNS: IdealUniversalLLMConnector instance
+
+---
+
+### Method: register_model
+
+SIGNATURE:
+  register_model(model_id: str, model_config: dict) -> None
+
+DESCRIPTION:
+  Register a new model at runtime without code changes.
+
+PARAMETERS:
+  model_id (str): "provider:model_name" format
+  model_config (dict):
+    - Same structure as custom_models parameter
+    - Fields: api_key_name, families, url_template, api_model_name (optional)
+
+RETURNS: None (modifies connector state)
+
+EXAMPLE_CONFIG:
+  {
+    "api_key_name": "myprovider",
+    "families": {"text": "openai_compatible"},
+    "url_template": "https://api.example.com/v1/chat/completions"
+  }
+
+---
+
+### Method: invoke
+
+SIGNATURE:
+  invoke(
+    provider: str,
+    model_id: str,
+    messages: list[dict],
+    temperature: float = None,
+    max_tokens: int = None,
+    debug: bool = None
+  ) -> dict
+
+DESCRIPTION:
+  Unified text generation across all providers.
+
+PARAMETERS:
+  provider (str): Provider name (e.g., "openai", "deepseek", "google", "ollama")
+  model_id (str): Model identifier (e.g., "gpt-4o", "deepseek-chat", "llama3.2")
+  messages (list[dict]): Conversation history
+    - Format: [{"role": "user|assistant|system", "content": "text"}, ...]
+    - Supports multi-turn conversations
+  temperature (float, optional): Sampling temperature (0.0-2.0)
+  max_tokens (int, optional): Max response length
+  debug (bool, optional): Override constructor debug setting
+
+RETURNS: dict
+  {
+    "text": str,           # Generated response text
+    "raw_response": dict,  # Raw API response
+    "model": str,          # Model used
+    "provider": str,       # Provider used
+    "usage": dict          # Token usage if available
+  }
+
+ERROR_HANDLING:
+  - Raises IdealAIError if provider/model not found
+  - Raises IdealAIError if API call fails
+  - Automatic retry logic with exponential backoff (3 retries default)
+
+---
+
+### Method: invoke_image
+
+SIGNATURE:
+  invoke_image(
+    provider: str,
+    model_id: str,
+    image_input: bytes | PIL.Image,
+    prompt: str,
+    debug: bool = None
+  ) -> dict
+
+DESCRIPTION:
+  Vision/multimodal analysis on images.
+
+PARAMETERS:
+  provider (str): Vision-capable provider (openai, google, anthropic, ollama, moonshot)
+  model_id (str): Vision model (e.g., gpt-4o, gemini-2.5-flash)
+  image_input (bytes | PIL.Image): Image data
+    - Bytes: raw image file content
+    - PIL.Image: Python Imaging Library object
+  prompt (str): Analysis prompt
+  debug (bool, optional): Print request/response
+
+RETURNS: dict
+  {
+    "text": str,           # Vision analysis result
+    "raw_response": dict,  # Raw API response
+    "model": str,          # Model used
+    "provider": str
+  }
+
+SUPPORTED_FORMATS:
+  - JPEG, PNG, GIF, WebP
+  - Automatically converted if needed
+
+---
+
+### Method: invoke_image_generation
+
+SIGNATURE:
+  invoke_image_generation(
+    provider: str,
+    model_id: str,
+    prompt: str,
+    size: str = None,
+    quality: str = None,
+    style: str = None,
+    debug: bool = None
+  ) -> dict
+
+DESCRIPTION:
+  Generate images from text prompts.
+
+PARAMETERS:
+  provider (str): Image generation provider (openai, infomaniak)
+  model_id (str): Model (dall-e-3, flux-schnell, sdxl-lightning)
+  prompt (str): Image description
+  size (str, optional): Image dimensions (e.g., "1024x1024", "1280x720")
+  quality (str, optional): Output quality (hd, standard)
+  style (str, optional): Art style (vivid, natural, etc.)
+  debug (bool, optional)
+
+RETURNS: dict
+  {
+    "images": list[str],   # Image URLs or base64 strings
+    "raw_response": dict,
+    "model": str,
+    "provider": str
+  }
+
+---
+
+### Method: invoke_audio
+
+SIGNATURE:
+  invoke_audio(
+    provider: str,
+    model_id: str,
+    audio_file_path: str,
+    language: str = None,
+    debug: bool = None
+  ) -> dict
+
+DESCRIPTION:
+  Speech-to-Text (STT) transcription.
+
+PARAMETERS:
+  provider (str): Audio provider (infomaniak)
+  model_id (str): Model (whisper)
+  audio_file_path (str): Path to audio file
+    - Supports: m4a, mp3, wav, webm, flac
+  language (str, optional): Language code (e.g., "en", "fr")
+  debug (bool, optional)
+
+RETURNS: dict
+  {
+    "text": str,           # Transcribed text
+    "raw_response": dict,
+    "language": str,       # Detected language
+    "model": str,
+    "provider": str
+  }
+
+ASYNC_BEHAVIOR:
+  - Handles async polling automatically
+  - Returns when transcription complete
+  - No polling logic needed in calling code
+
+---
+
+### Method: invoke_speech_generation
+
+SIGNATURE:
+  invoke_speech_generation(
+    provider: str,
+    model_id: str,
+    text: str,
+    voice: str = "nova",
+    speed: float = 1.0,
+    debug: bool = None
+  ) -> dict
+
+DESCRIPTION:
+  Text-to-Speech (TTS) synthesis.
+
+PARAMETERS:
+  provider (str): TTS provider (openai)
+  model_id (str): Model (tts-1, tts-1-hd)
+  text (str): Text to convert to speech
+  voice (str, optional): Voice selection
+    - Options: nova, alloy, echo, fable, onyx, shimmer
+  speed (float, optional): Playback speed (0.25-4.0)
+  debug (bool, optional)
+
+RETURNS: dict
+  {
+    "audio_bytes": bytes,  # Raw audio data (MP3)
+    "raw_response": dict,
+    "model": str,
+    "provider": str
+  }
+
+OUTPUT_FORMAT: MP3 (binary audio)
+
+---
+
+### Method: invoke_video_generation
+
+SIGNATURE:
+  invoke_video_generation(
+    provider: str,
+    model_id: str,
+    prompt: str,
+    size: str = None,
+    duration: int = None,
+    debug: bool = None
+  ) -> dict
+
+DESCRIPTION:
+  Generate videos from text prompts (with auto-async polling).
+
+PARAMETERS:
+  provider (str): Video provider (alibaba)
+  model_id (str): Model (wan2.1-t2v-turbo, wan2.2-t2v-plus)
+  prompt (str): Video description
+  size (str, optional): Video dimensions (e.g., "1280*720")
+  duration (int, optional): Video length in seconds
+  debug (bool, optional)
+
+RETURNS: dict
+  {
+    "videos": list[str],   # Video URLs
+    "task_id": str,        # Async task identifier
+    "raw_response": dict,
+    "model": str,
+    "provider": str
+  }
+
+ASYNC_BEHAVIOR:
+  - Submits async job
+  - Polls automatically until completion
+  - Returns video URL when ready
+  - No manual polling needed
+
+---
+
+### Method: invoke_stream
+
+SIGNATURE:
+  invoke_stream(
+    provider: str,
+    model_id: str,
+    messages: list[dict],
+    temperature: float = None,
+    max_tokens: int = None,
+    debug: bool = None
+  ) -> Iterator[dict]
+
+DESCRIPTION:
+  Stream text generation responses (real-time output).
+
+PARAMETERS:
+  provider (str): Provider name
+  model_id (str): Model ID
+  messages (list[dict]): Conversation history
+  temperature (float, optional)
+  max_tokens (int, optional)
+  debug (bool, optional)
+
+RETURNS: Iterator[dict]
+  Each chunk:
+  {
+    "text": str,          # Text chunk
+    "raw_response": dict,
+    "model": str,
+    "provider": str
+  }
+
+USAGE_PATTERN:
+  stream = connector.invoke_stream(...)
+  for chunk in stream:
+    print(chunk["text"], end="", flush=True)
+
+---
+
+## BUILT-IN MODELS (Config Reference)
+
+### TEXT GENERATION
+
+openai:gpt-4o
+  FAMILY: openai_compatible
+  API_URL: https://api.openai.com/v1/chat/completions
+  VISION: YES
+
+openai:gpt-4o-2025-05-13
+  FAMILY: openai_compatible
+  API_URL: https://api.openai.com/v1/chat/completions
+  VISION: YES
+
+openai:gpt-3.5-turbo
+  FAMILY: openai_compatible
+  API_URL: https://api.openai.com/v1/chat/completions
+
+openai:gpt-5
+  FAMILY: openai_compatible
+  API_URL: https://api.openai.com/v1/chat/completions
+  VISION: YES
+  TEMPERATURE: 1.0
+
+google:gemini-2.5-flash
+  FAMILY: google_sdk_text
+  SDK_BASED: YES
+  VISION: YES
+
+deepseek:deepseek-chat (V3)
+  FAMILY: openai_compatible
+  API_URL: https://api.deepseek.com/chat/completions
+  API_MODEL: deepseek-chat
+
+deepseek:deepseek-reasoner (R1)
+  FAMILY: openai_compatible
+  API_URL: https://api.deepseek.com/chat/completions
+  API_MODEL: deepseek-reasoner
+
+anthropic:claude-haiku-4-5-20251001
+  FAMILY: anthropic_api
+  API_URL: https://api.anthropic.com/v1/messages
+  VISION: YES
+  HEADERS: x-api-key, anthropic-version
+
+infomaniak:apertus-70b
+  FAMILY: openai_compatible
+  API_URL: https://api.infomaniak.com/2/ai/$infomaniak_product/openai/v1/chat/completions
+  API_MODEL: swiss-ai/Apertus-70B-Instruct-2509
+
+infomaniak:mixtral
+  FAMILY: openai_compatible
+  API_URL: https://api.infomaniak.com/1/ai/$infomaniak_product/openai/chat/completions
+
+alibaba:qwen-turbo
+  FAMILY: alibaba_api
+  API_URL: https://dashscope-intl.aliyuncs.com/api/v1/services/aigc/text-generation/generation
+
+alibaba:qwen-plus
+  FAMILY: openai_compatible
+  API_URL: https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions
+  API_MODEL: qwen-plus
+
+alibaba:qwen3-max
+  FAMILY: openai_compatible
+  API_URL: https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions
+  API_MODEL: qwen3-max
+
+ollama:llama3.2
+  FAMILY: ollama_text
+  LOCAL: YES
+  URL_TEMPLATE: $ollama_url/api/chat
+
+ollama:qwen2:7b
+  FAMILY: ollama_text
+  LOCAL: YES
+
+ollama:qwen3:30b
+  FAMILY: ollama_text
+  LOCAL: YES
+
+ollama:deepseek-r1:8b
+  FAMILY: ollama_text
+  LOCAL: YES
+
+ollama:gemma3:1b, gemma3:4b, gemma3:12b
+  FAMILY: ollama_text
+  LOCAL: YES
+  VISION: YES (for 12b, 4b)
+
+moonshot:kimi-k2-0905-preview
+  FAMILY: openai_compatible
+  API_URL: https://api.moonshot.ai/v1/chat/completions
+
+minimax:MiniMax-M2
+  FAMILY: openai_compatible
+  API_URL: https://api.minimax.io/v1/chat/completions
+  PARSER: _parse_minimax_clean
+
+perplexity:sonar
+  FAMILY: openai_compatible
+  API_URL: https://api.perplexity.ai/chat/completions
+
+huggingface:gpt-oss-120b
+  FAMILY: openai_compatible
+  API_URL: https://router.huggingface.co/v1/chat/completions
+  API_MODEL: openai/gpt-oss-120b:fastest
+
+### VISION (MULTIMODAL)
+
+openai:gpt-4o
+  FAMILY: openai_vision_compatible
+  METHOD: invoke_image()
+
+google:gemini-2.5-flash
+  FAMILY: google_sdk_vision
+  METHOD: invoke_image()
+
+anthropic:claude-haiku-4-5
+  FAMILY: anthropic_vision_api
+  METHOD: invoke_image()
+
+moonshot:moonshot-v1-8k-vision-preview
+  FAMILY: openai_vision_compatible
+  METHOD: invoke_image()
+
+ollama:llava
+  FAMILY: ollama_vision
+  LOCAL: YES
+  METHOD: invoke_image()
+
+ollama:qwen3-vl:30b
+  FAMILY: ollama_vision
+  LOCAL: YES
+  METHOD: invoke_image()
+
+### AUDIO (STT - Speech-to-Text)
+
+infomaniak:whisper
+  FAMILY: infomaniak_whisper
+  METHOD: invoke_audio()
+  ASYNC_POLLING: YES
+  FILE_UPLOAD: YES
+  SUPPORTED_FORMATS: m4a, mp3, wav, webm, flac
+
+### SPEECH (TTS - Text-to-Speech)
+
+openai:tts-1
+  FAMILY: openai_tts_api
+  METHOD: invoke_speech_generation()
+  OUTPUT_FORMAT: MP3 (binary)
+  VOICES: nova, alloy, echo, fable, onyx, shimmer
+
+openai:tts-1-hd
+  FAMILY: openai_tts_api
+  METHOD: invoke_speech_generation()
+  OUTPUT_FORMAT: MP3 (binary)
+  QUALITY: HD
+
+### IMAGE GENERATION
+
+openai:dall-e-3
+  FAMILY: openai_image_gen_api
+  METHOD: invoke_image_generation()
+  API_URL: https://api.openai.com/v1/images/generations
+
+infomaniak:flux-schnell
+  FAMILY: openai_image_gen_api
+  METHOD: invoke_image_generation()
+  API_URL: https://api.infomaniak.com/1/ai/$infomaniak_product/openai/images/generations
+
+infomaniak:sdxl-lightning
+  FAMILY: openai_image_gen_api
+  METHOD: invoke_image_generation()
+
+### VIDEO GENERATION
+
+alibaba:wan2.1-t2v-turbo
+  FAMILY: alibaba_video_gen
+  METHOD: invoke_video_generation()
+  API_URL: https://dashscope-intl.aliyuncs.com/api/v1/services/aigc/video-generation/video-synthesis
+  ASYNC_POLLING: YES
+  API_MODEL: wan2.1-t2v-turbo
+
+alibaba:wan2.2-t2v-plus
+  FAMILY: alibaba_video_gen
+  METHOD: invoke_video_generation()
+  ASYNC_POLLING: YES
+  API_MODEL: wan2.2-t2v-plus
+
+alibaba:wan2.5-t2v-preview
+  FAMILY: alibaba_video_gen
+  METHOD: invoke_video_generation()
+  ASYNC_POLLING: YES
+  API_MODEL: wan2.5-t2v-preview
+
+---
+
+## DYNAMIC INJECTION PATTERNS
+
+### Pattern 1: Register Custom Model at Runtime
+
+```python
+connector.register_model(
+    "myprovider:custom-model",
+    {
+        "api_key_name": "myprovider",
+        "families": {"text": "openai_compatible"},
+        "url_template": "https://api.myprovider.com/v1/chat/completions"
+    }
+)
+```
+
+REQUIREMENTS:
+- Provide api_key in constructor
+- Use existing family or provide custom_families
+- model_id format: "provider:model_name"
+
+### Pattern 2: Inject Custom Parser
+
+```python
+def my_parser(raw_response: dict) -> str:
+    return raw_response["data"]["output"]["text"]
+
+connector = IdealUniversalLLMConnector(
+    parsers={"myprovider:model": my_parser}
+)
+```
+
+PARSER_SIGNATURE:
+  Input: dict (raw API response)
+  Output: str (extracted text)
+  
+USE_CASES:
+- Non-standard response formats
+- Provider-specific response structures
+- Data transformation needs
+
+### Pattern 3: Pass Custom Models at Init
+
+```python
+custom_models = {
+    "custom:model1": {
+        "api_key_name": "custom_key",
+        "families": {"text": "openai_compatible"},
+        "url_template": "https://api.example.com/chat"
+    }
+}
+
+connector = IdealUniversalLLMConnector(
+    api_keys={"custom_key": "your-key"},
+    custom_models=custom_models
+)
+```
+
+---
+
+## ENVIRONMENT VARIABLES (Required by Provider)
+
+### OpenAI
+OPENAI_API_KEY: sk-...
+Required for: gpt-4o, gpt-3.5-turbo, tts-1, dall-e-3
+
+### Google
+GOOGLE_API_KEY: AIza...
+Required for: gemini-2.5-flash
+
+### Anthropic
+ANTHROPIC_API_KEY: sk-ant-...
+Required for: claude-haiku-4-5
+
+### DeepSeek
+DEEPSEEK_API_KEY: sk-...
+Required for: deepseek-chat, deepseek-reasoner
+
+### Alibaba
+ALIBABA_API_KEY: sk-...
+ALIBABA_MODEL: (optional, defaults to qwen-turbo)
+Required for: qwen-turbo, qwen-plus, qwen3-max, wan2.1-t2v-turbo
+
+### Infomaniak
+INFOMANIAK_AI_TOKEN: ...
+INFOMANIAK_PRODUCT_ID: ...
+Required for: apertus-70b, mixtral, whisper, flux-schnell
+
+### Moonshot (Kimi)
+MOONSHOT_API_KEY: ...
+Required for: kimi-k2-0905-preview
+
+### MiniMax
+MINIMAX_API_KEY: ...
+Required for: MiniMax-M2
+
+### Perplexity
+PERPLEXITY_API_KEY: ...
+Required for: sonar
+
+### Hugging Face
+HUGGING_FACE_API_KEY: ...
+Required for: gpt-oss-120b
+
+### Ollama (Local)
+OLLAMA_URL: http://localhost:11434 (default)
+Required for: ollama:* models
+NO API KEY NEEDED
+
+---
+
+## INTEGRATION PATTERNS
+
+### Pattern: Smolagents
+
+```python
+from ideal_ai import IdealUniversalLLMConnector, IdealSmolagentsWrapper
+from smolagents import CodeAgent
+
+connector = IdealUniversalLLMConnector(api_keys={...})
+model = IdealSmolagentsWrapper(
+    connector=connector,
+    provider="openai",
+    model_id="gpt-4o"
+)
+agent = CodeAgent(tools=[...], model=model)
+```
+
+WRAPPER_CLASS: IdealSmolagentsWrapper
+PARAMETERS:
+  - connector: IdealUniversalLLMConnector instance
+  - provider: str
+  - model_id: str
+RETURNS: Model object compatible with smolagents
+
+### Pattern: LangChain/LangGraph
+
+```python
+from ideal_ai import IdealUniversalLLMConnector
+from langgraph.graph import StateGraph
+
+connector = IdealUniversalLLMConnector(api_keys={...})
+
+def my_node(state):
+    response = connector.invoke(
+        provider="openai",
+        model_id="gpt-4o",
+        messages=state["messages"]
+    )
+    return {"output": response["text"]}
+```
+
+INTEGRATION_TYPE: Direct method calls
+COMPATIBLE_WITH: LangGraph nodes, LangChain chains
+NO_WRAPPER_NEEDED: True
+
+---
+
+## VOICE CHAT PIPELINE (Complete Audio-to-Audio)
+
+SEQUENCE:
+1. invoke_audio(whisper) → transcribe user speech
+2. invoke(text_model) → generate response
+3. invoke_speech_generation(tts) → synthesize speech
+
+EXAMPLE_IMPLEMENTATION:
+```python
+# Step 1: STT
+transcription = connector.invoke_audio(
+    provider="infomaniak",
+    model_id="whisper",
+    audio_file_path="user_input.m4a"
+)
+
+# Step 2: LLM
+response = connector.invoke(
+    provider="deepseek",
+    model_id="deepseek-chat",
+    messages=[{"role": "user", "content": transcription["text"]}]
+)
+
+# Step 3: TTS
+audio = connector.invoke_speech_generation(
+    provider="openai",
+    model_id="tts-1",
+    text=response["text"],
+    voice="nova"
+)
+```
+
+DEPENDENCIES:
+- STT: Infomaniak Whisper
+- LLM: Any text generation model
+- TTS: OpenAI TTS
+NO_ADDITIONAL_LIBRARIES: True
+
+---
+
+## ERROR HANDLING
+
+EXCEPTION_TYPES:
+- IdealAIError: Base exception
+- ProviderNotFoundError: Unknown provider
+- ModelNotFoundError: Unknown model
+- APIError: API call failed
+- ValidationError: Invalid parameters
+
+RETRY_STRATEGY:
+- Automatic exponential backoff (3 retries)
+- Handles rate limits
+- Handles transient failures
+
+DEBUG_OUTPUT:
+- Set debug=True in invoke() or constructor
+- Prints formatted request/response payloads
+- Useful for understanding API interactions
+
+---
+
+## CONFIGURATION FILE STRUCTURE
+
+LOCATION: config.json (in package or custom)
+
+STRUCTURE:
+{
+  "families": {
+    "family_name": {
+      "formatter": "method_name",
+      "caller": "method_name",
+      "parser": "method_name",
+      "headers_template": {...},
+      "url_template": "..."
+    }
+  },
+  "models": {
+    "provider:model_id": {
+      "api_key_name": "...",
+      "families": {"modality": "family_name"},
+      "url_template": "...",
+      "api_model_name": "..."
+    }
+  }
+}
+
+CUSTOMIZATION:
+- Pass custom_families parameter
+- Pass custom_models parameter
+- Override via register_model()
+
+---
+
+## KEY CAPABILITIES SUMMARY
+
+MODALITIES_SUPPORTED:
+- Text generation: invoke()
+- Vision/multimodal: invoke_image()
+- Image generation: invoke_image_generation()
+- Audio transcription (STT): invoke_audio()
+- Speech synthesis (TTS): invoke_speech_generation()
+- Video generation: invoke_video_generation()
+- Streaming: invoke_stream()
+
+PROVIDERS_SUPPORTED: 15+
+- Commercial: OpenAI, Google, Anthropic, DeepSeek, Alibaba, Infomaniak, Moonshot, MiniMax, Perplexity
+- Open-source: Ollama (local)
+
+EXTENSIBILITY:
+- Dynamic model injection: YES
+- Custom parser injection: YES
+- Custom family registration: YES
+- Runtime configuration: YES
+
+ASYNC_SUPPORT:
+- Auto-polling for long-running tasks: Video, Audio
+- Stream support for real-time: Text
+
+PRODUCTION_READY:
+- Error handling: YES
+- Retry logic: YES
+- Debug mode: YES
+- Type hints: YES
+- Logging: YES
+
+---
+
+## RESOURCES
+
+GitHub: https://github.com/Devgoodcode/ideal-ai
+PyPI: https://pypi.org/project/ideal-ai/
+Colab: https://colab.research.google.com/github/Devgoodcode/ideal-ai/blob/main/examples/demo_ideal_universal_connector.ipynb
+HuggingFace: https://huggingface.co/spaces/Idealcom/ideal-ai-llm-connector-demo
+YouTube: https://youtu.be/f1DwFRpo2HA
+
+---
+
+## LICENSE
+
+Apache 2.0 - Free for personal & commercial use. No restrictions.
+
+Built with ❤️ by Gilles Blanchet (IA-Agence.ai)

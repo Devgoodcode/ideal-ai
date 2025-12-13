@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ideal-ai"
-version = "0.2.0"
-description = "One Connector to Rule Them All. The ultimate universal Python interface for LLMs, Vision, Audio & Image Gen (Ollama, OpenAI, Google, Anthropic, Mistral, DeepSeek, Alibaba & more)."
+version = "0.2.1"
+description = "One Connector to Rule Them All. The ultimate Open Source Python LLM Connector. A universal interface for Text, Vision, Audio & Image Gen (Ollama, OpenAI, Google, DeepSeek & more)."
 readme = "README.md"
 requires-python = ">=3.10"
 license = "Apache-2.0"
@@ -16,24 +16,35 @@ keywords = [
     "llm",
     "ai",
     "python",
+    "open-source",
     "llm-connector",
     "unified-llm",
     "unified-api",
     "universal-connector",
     "wrapper",
+    "agent",
+    "smolagents",
     "openai",
     "ollama",
     "google",
     "anthropic",
     "mistral",
     "alibaba",
+    "qwen",
     "infomaniak",
+    "apertus",
+    "deepseek",
+    "perplexity",
+    "moonshot",
+    "minimax",
     "huggingface",
     "vision",
     "audio",
     "multimodal",
-    "smolagents",
-    "agent"
+    "image-generation",
+    "video-generation",
+    "tts",
+    "stt"
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
