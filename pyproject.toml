@@ -4,26 +4,31 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ideal-ai"
-version = "0.2.1"
-description = "One Connector to Rule Them All. The ultimate Open Source Python LLM Connector. A universal interface for Text, Vision, Audio & Image Gen (Ollama, OpenAI, Google, DeepSeek & more)."
+version = "0.2.2"
+description = "The Universal Python LLM Connector. Unified API for ChatGPT, Ollama, DeepSeek, Gemini & Qwen. Native Multimodal support (Text, Vision, Audio, Video) for building AI Agents. 100% Open Source."
 readme = "README.md"
 requires-python = ">=3.10"
 license = "Apache-2.0"
 authors = [
     { name = "Gilles Blanchet", email = "gblanchet@idealcom.ch" },
 ]
+
 keywords = [
     "llm",
     "ai",
     "python",
-    "open-source",
-    "llm-connector",
-    "unified-llm",
-    "unified-api",
-    "universal-connector",
+    "open source",
+    "llm connector",
+    "unified llm",
+    "unified api",
+    "unified ai",
+    "universal connector",
     "wrapper",
     "agent",
+    "agents",
     "smolagents",
+    "langchain",    
+    "langgraph",  
     "openai",
     "ollama",
     "google",
@@ -32,6 +37,12 @@ keywords = [
     "alibaba",
     "qwen",
     "infomaniak",
+    "chatgpt",
+    "gpt-4",
+    "gpt-4o",
+    "gpt-5",
+    "gpt5",
+    "gpt",
     "apertus",
     "deepseek",
     "perplexity",
@@ -41,11 +52,15 @@ keywords = [
     "vision",
     "audio",
     "multimodal",
-    "image-generation",
-    "video-generation",
+    "image generation",
+    "video generation",
     "tts",
-    "stt"
+    "stt",
+    "text to speech",
+    "speech to text",
+    "transcription"
 ]
+
 classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
@@ -94,4 +109,5 @@ include = [
     "/examples",
     "/README.md",
     "/LICENSE",
+    "/llms.txt"
 ]
