@@ -228,6 +228,63 @@ workflow = StateGraph(dict)
 workflow.add_node("chatbot", chatbot_node)
 ```
 
+---
+
+## 🏗️ Clean Architecture & Enterprise Patterns
+
+`ideal-ai` is built to be modular. For production applications, you can easily wrap it in a **Service Layer** to centralize your AI logic.
+
+This approach gives you absolute control to **inject custom parsers**, **switch providers dynamically** (e.g., using Ollama for local development and OpenAI for production), and keep your business logic clean.
+
+### The Pattern: `AIService` Wrapper
+
+```python
+# src/services/ai_service.py
+from ideal_ai import IdealUniversalLLMConnector
+import os
+
+
+class AIService:
+    """
+    Centralized Service for AI interactions.
+    Use this layer to manage environment-specific logic (Dev vs Prod).
+    """
+    def __init__(self):
+        # Initialize the engine once
+        self._engine = IdealUniversalLLMConnector(
+            api_keys={
+                "openai": os.getenv("OPENAI_API_KEY")
+            }
+        )
+
+    def chat_with_user(self, user_message: str) -> str:
+        """
+        Your app's simplified contract.
+        Centralizes the decision of which model/provider to use.
+        """
+        # Logic: Use free local model for Dev, powerful model for Prod
+        is_prod = os.getenv("ENV") == "production"
+        provider = "openai" if is_prod else "ollama"
+        model = "gpt-4o" if is_prod else "llama3.2"
+
+        response = self._engine.invoke(
+            provider=provider,
+            model_id=model,
+            messages=[{"role": "user", "content": user_message}]
+        )
+        return response["text"]
+```
+
+### Benefits of This Pattern
+
+✅ **Separation of Concerns** - Business logic stays clean
+✅ **Environment-Aware** - Dev uses local models, Prod uses powerful APIs
+✅ **Provider Abstraction** - Swap providers without touching your code
+✅ **Testable** - Mock the service layer easily
+✅ **Maintainable** - All AI logic in one place
+
+---
+
 ## 🔧 Configuration System
 
 Ideal AI uses a two-level configuration system:

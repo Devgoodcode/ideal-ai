@@ -730,6 +730,31 @@ INTEGRATION_TYPE: Direct method calls
 COMPATIBLE_WITH: LangGraph nodes, LangChain chains
 NO_WRAPPER_NEEDED: True
 
+
+### Pattern: Service Layer (Clean Architecture)
+
+GOAL: Centralize AI logic and environment management.
+
+```python
+class AIService:
+    def __init__(self):
+        self._engine = IdealUniversalLLMConnector(api_keys={...})
+
+    def generate_content(self, topic: str) -> str:
+        # Centralized logic for model selection (Dev vs Prod)
+        response = self._engine.invoke(
+            provider="openai", 
+            model_id="gpt-4o",
+            messages=[{"role": "user", "content": topic}]
+        )
+        return response["text"]
+```
+
+BENEFITS:
+- clean separation of concerns
+- centralized provider/model selection logic
+- simplifies testing via mocking
+
 ---
 
 ## VOICE CHAT PIPELINE (Complete Audio-to-Audio)
