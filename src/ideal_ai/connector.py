@@ -1,17 +1,21 @@
 """
-IdealUniversalLLMConnector - Universal connector for various LLM providers
+    IdealUniversalLLMConnector - Universal connector for various LLM providers.
 
-A production-grade, extensible connector that provides a unified interface for:
-- Text generation (OpenAI, Google, Anthropic, Alibaba, Ollama, etc.)
-- Vision/Multimodal (Image analysis with GPT-4V, Gemini, Claude, etc.)
-- Audio transcription (Whisper via Infomaniak)
-- Speech synthesis (OpenAI TTS)
-- Image generation (DALL-E, Flux, SDXL)
-- Video generation (Alibaba Wan)
+    A production-grade, extensible connector providing a unified interface for:
+    - Text generation (OpenAI, Google, Anthropic, Alibaba, Ollama, etc.)
+    - Vision/Multimodal (Image analysis with GPT-4V, Gemini, Claude, etc.)
+    - Audio transcription (Whisper via Infomaniak)
+    - Speech synthesis (OpenAI TTS)
+    - Image generation (DALL-E, Flux, Ollama/Local)
+    - Video generation (Alibaba Wan)
 
-Features intelligent model resolution based on modality, supports custom models,
-and includes a robust Smolagents wrapper for agent-based workflows.
-"""
+    **Runtime Extensibility:** You can easily **inject any other model** or provider (OpenAI-compatible, 
+    Ollama, etc.) at runtime via `config.json` or `register_model()` 
+    without changing the core package code.
+
+    Features intelligent model resolution based on modality, supports custom models,
+    and includes a robust Smolagents wrapper for agent-based workflows.
+    """
 
 # Copyright 2025 Gilles Blanchet
 #
@@ -946,7 +950,25 @@ class IdealUniversalLLMConnector:
             "input": {"messages": messages},
             "parameters": {"temperature": context.get("temperature", 0.7)}
         }
-
+    def _format_for_qwen_image_generation(self, **context) -> dict:
+        """Formatte le payload pour Qwen-Image-Max (structure messages)."""
+        return {
+            "model": context.get("api_model_name", "qwen-image-max"),
+            "input": {
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": [{"text": context.get("prompt")}]
+                    }
+                ]
+            },
+            "parameters": {
+                "size": context.get("size", "1024*1024"),
+                "prompt_extend": True,
+                "watermark": False
+            }
+        }
+    
     def _format_for_ollama(self, **context) -> dict:
         """Format messages for Ollama API (supports multimodal text-invoke)."""
         messages = context.get("messages", [])
@@ -967,6 +989,16 @@ class IdealUniversalLLMConnector:
             "messages": final_messages,
             "stream": False,
             "options": {"temperature": context.get("temperature", 0.7)}
+        }
+    def _format_for_ollama_image_gen(self, **context):
+        """Formatter pour la génération d'images (Texte -> Image)."""
+        return {
+            "model": context.get("model_id"),
+            "prompt": context.get("prompt"),
+            "stream": False,
+            "options": {
+                "temperature": context.get("temperature", 0.7)
+            }
         }
 
     def _format_for_anthropic(self, **context) -> dict:
@@ -1520,7 +1552,7 @@ class IdealUniversalLLMConnector:
             return raw.get("output", {}).get("text")
         except (AttributeError, TypeError):
             return None
-
+    
     def _parse_ollama(self, raw: Any) -> Optional[str]:
         """Parse Ollama /api/chat response."""
         try:
@@ -1534,6 +1566,13 @@ class IdealUniversalLLMConnector:
             return raw.get("response")
         except (AttributeError, TypeError):
             return None
+        
+    def _parse_ollama_image(self, data):
+        """Parser spécifique pour les modèles d'images Ollama (clé 'image')."""
+        img = data.get("image")
+        if img:
+            return [img] 
+        return []
 
     def _parse_huggingface(self, raw: Any) -> Optional[str]:
         """Parse Hugging Face Inference API response."""
@@ -1600,19 +1639,46 @@ class IdealUniversalLLMConnector:
         return cleaned_text.strip()
 
     def _parse_image_gen_response(self, raw: Any) -> Optional[List[str]]:
-        """Parse image generation API response (URLs or base64)."""
+        """
+        Universal parser for image generation responses.
+        Handles OpenAI (data), Alibaba WanX (output/results), and Qwen-Max (choices).
+        """
         images = []
         try:
-            if isinstance(raw, dict) and raw.get("data"):
+            if not isinstance(raw, dict):
+                return None
+
+            # 1. OpenAI / Standard compatible format
+            if raw.get("data"):
                 for item in raw["data"]:
-                    if isinstance(item, dict):
-                        if "url" in item:
+                    if "url" in item: images.append(item["url"])
+                    elif "b64_json" in item: images.append(item["b64_json"])
+
+            # 2. Alibaba Formats
+            elif raw.get("output"):
+                output = raw["output"]
+                
+                # Case A: Qwen-Image-Max/Plus (Chat-like structure from your successful test)
+                if "choices" in output:
+                    for choice in output["choices"]:
+                        content = choice.get("message", {}).get("content", [])
+                        for item in content:
+                            if isinstance(item, dict) and "image" in item:
+                                images.append(item["image"])
+                
+                # Case B: Standard Alibaba WanX (results list)
+                elif "results" in output:
+                    for item in output["results"]:
+                        if isinstance(item, dict) and "url" in item:
                             images.append(item["url"])
-                        elif "b64_json" in item:
-                            images.append(item["b64_json"])
-            return images
+                
+                # Case C: Direct URL at output root
+                elif "url" in output:
+                    images.append(output["url"])
+
+            return images if images else None
         except Exception as e:
-            self.logger.error(f"Error parsing Image Gen response: {e}")
+            self.logger.error(f"Error parsing image generation response: {e}")
             return None
 
     def _parse_alibaba_video_gen(self, raw: Any) -> Optional[List[str]]:

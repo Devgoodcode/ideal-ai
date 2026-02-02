@@ -7,7 +7,7 @@ Supports text generation, vision, audio transcription, speech synthesis, image a
 
 from ideal_ai.connector import IdealUniversalLLMConnector, IdealSmolagentsWrapper
 
-__version__ = "0.2.2"
+__version__ = "0.3.0"
 __author__ = "Gilles Blanchet"
 __license__ = "Apache-2.0"
 

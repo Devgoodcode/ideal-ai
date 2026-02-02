@@ -6,6 +6,18 @@
       "parser": "_parse_ollama",
       "url_template": "$ollama_url/api/chat"
     },
+
+    "alibaba_qwen_image_gen_max": {
+      "formatter": "_format_for_qwen_image_generation",
+      "caller": "_call_http_post", 
+      "parser": "_parse_image_gen_response",
+      "headers_template": {
+        "Authorization": "Bearer $api_key",
+        "Content-Type": "application/json"
+      },
+      "url_template": "https://dashscope-intl.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation"
+    },
+
     "openai_compatible": {
       "formatter": "_format_for_openai_style",
       "caller": "_call_http_post",
@@ -75,12 +87,15 @@
       "parser": "_parse_ollama",
       "url_template": "$ollama_url/api/chat"
     },
-    "ollama_vision_generate": {
-      "formatter": "_format_for_ollama_vision_generate",
+    
+    "ollama_image_gen": {
+      "formatter": "_format_for_ollama_image_gen", 
       "caller": "_call_ollama",
-      "parser": "_parse_ollama_generate",
-      "url_template": "$ollama_url/api/generate"
+      "parser": "_parse_ollama_image", 
+      "url_template": "$ollama_url/api/generate",
+      "timeout": 180
     },
+    
     "openai_vision_compatible": {
       "formatter": "_format_for_openai_vision_style",
       "caller": "_call_http_post",
@@ -130,44 +145,47 @@
       "poll_url_template": "https://dashscope-intl.aliyuncs.com/api/v1/tasks/$task_id"
     }
   },
+
   "models": {
+    
     "deepseek:v3": {
       "api_key_name": "deepseek",
-      "families": {
-        "text": "openai_compatible"
-      },
+      "families": { "text": "openai_compatible" },
       "url_template": "https://api.deepseek.com/chat/completions",
       "api_model_name": "deepseek-chat"
     },
     "deepseek:r1": {
       "api_key_name": "deepseek",
-      "families": {
-        "text": "openai_compatible"
-      },
+      "families": { "text": "openai_compatible" },
       "url_template": "https://api.deepseek.com/chat/completions",
       "api_model_name": "deepseek-reasoner"
     },
     "infomaniak:apertus-70b": {
       "api_key_name": "infomaniak",
-      "families": {
-        "text": "openai_compatible"
-      },
+      "families": { "text": "openai_compatible" },
       "url_template": "https://api.infomaniak.com/2/ai/$infomaniak_product/openai/v1/chat/completions",
       "api_model_name": "swiss-ai/Apertus-70B-Instruct-2509"
     },
     "infomaniak:mixtral": {
       "api_key_name": "infomaniak",
-      "families": {
-        "text": "openai_compatible"
-      },
+      "families": { "text": "openai_compatible" },
       "url_template": "https://api.infomaniak.com/1/ai/$infomaniak_product/openai/chat/completions"
+    },
+    "infomaniak:whisper": {
+      "api_key_name": "infomaniak",
+      "families": { "audio": "infomaniak_whisper" }
+    },
+    "infomaniak:flux-schnell": {
+      "api_key_name": "infomaniak",
+      "families": { "image_gen": "openai_image_gen_api" },
+      "api_model_name": "flux",
+      "url_template": "https://api.infomaniak.com/1/ai/$infomaniak_product/openai/images/generations"
     },
     "google:gemini-2.5-flash": {
       "api_key_name": "google",
       "families": {
         "text": "google_sdk_text",
-        "vision": "google_sdk_vision"
-      }
+        "vision": "google_sdk_vision" }
     },
     "openai:gpt-4o": {
       "api_key_name": "openai",
@@ -179,19 +197,8 @@
     },
     "openai:gpt-3.5-turbo": {
       "api_key_name": "openai",
-      "families": {
-        "text": "openai_compatible"
-      },
+      "families": { "text": "openai_compatible" },
       "url_template": "https://api.openai.com/v1/chat/completions"
-    },
-    "openai:gpt-5-2025-08-07": {
-      "api_key_name": "openai",
-      "families": {
-        "text": "openai_compatible",
-        "vision": "openai_vision_compatible"
-      },
-      "url_template": "https://api.openai.com/v1/chat/completions",
-      "temperature": 1.0
     },
     "openai:gpt-5": {
       "api_key_name": "openai",
@@ -202,12 +209,28 @@
       "url_template": "https://api.openai.com/v1/chat/completions",
       "temperature": 1.0
     },
+    "openai:tts-1": {
+      "api_key_name": "openai",
+      "families": { "speech_gen": "openai_tts_api" },
+      "url_template": "https://api.openai.com/v1/audio/speech"
+    },
+    "openai:dall-e-3": {
+      "api_key_name": "openai",
+      "families": { "image_gen": "openai_image_gen_api" },
+      "url_template": "https://api.openai.com/v1/images/generations"
+    },
     "moonshot:kimi-k2-0905-preview": {
       "api_key_name": "moonshot",
-      "families": {
-        "text": "openai_compatible"
-      },
+      "families": { "text": "openai_compatible" },
       "url_template": "https://api.moonshot.ai/v1/chat/completions"
+    },
+    "moonshot:kimi-k2.5": {
+      "api_key_name": "moonshot",
+      "families": { "text": "openai_compatible" },
+      "url_template": "https://api.moonshot.ai/v1/chat/completions"
+    },
+    "moonshot:latest": {
+      "inherit_from": "moonshot:kimi-k2.5"
     },
     "moonshot:moonshot-v1-8k-vision-preview": {
       "api_key_name": "moonshot",
@@ -217,97 +240,131 @@
       },
       "url_template": "https://api.moonshot.ai/v1/chat/completions"
     },
+    "baidu:ernie-3.5": {
+      "api_key_name": "baidu",
+      "families": { "text": "openai_compatible" },
+      "url_template": "https://aistudio.baidu.com/llm/lmapi/v3/chat/completions",
+      "api_model_name": "ernie-3.5-8k"
+    },
+    "baidu:ernie-4.0": {
+      "api_key_name": "baidu",
+      "families": { "text": "openai_compatible" },
+      "url_template": "https://aistudio.baidu.com/llm/lmapi/v3/chat/completions",
+      "api_model_name": "ernie-4.0-8k"
+    },
+    "zhipu:glm-4.7": {
+      "api_key_name": "zhipu",
+      "families": { 
+        "text": "openai_compatible",
+        "vision": "openai_vision_compatible"
+      },
+      "url_template": "https://open.bigmodel.cn/api/paas/v4/chat/completions",
+      "api_model_name": "glm-4.7"
+    },
     "minimax:MiniMax-M2": {
       "api_key_name": "minimax",
-      "families": {
-        "text": "openai_compatible"
-      },
+      "families": { "text": "openai_compatible" },
       "url_template": "https://api.minimax.io/v1/chat/completions",
       "parser": "_parse_minimax_clean"
     },
     "alibaba:qwen-turbo": {
       "api_key_name": "alibaba",
-      "families": {
-        "text": "alibaba_api"
-      }
+      "families": { "text": "alibaba_api" }
     },
     "alibaba:qwen-plus": {
       "api_key_name": "alibaba",
-      "families": {
-        "text": "openai_compatible"
-      },
+      "families": { "text": "openai_compatible" },
       "url_template": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions",
       "api_model_name": "qwen-plus"
     },
     "alibaba:qwen3-max": {
       "api_key_name": "alibaba",
-      "families": {
-        "text": "openai_compatible"
-      },
+      "families": { "text": "openai_compatible" },
       "url_template": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions",
       "api_model_name": "qwen3-max"
     },
-    "ollama:gemma3:1b": {
-      "families": {
-        "text": "ollama_text"
-      }
+
+    "alibaba:qwen-image-max": {
+      "api_key_name": "alibaba",
+      "families": { "image_gen": "alibaba_qwen_image_gen_max" },
+      "api_model_name": "qwen-image-max"
     },
-    "ollama:llava": {
-      "families": {
-        "text": "ollama_text",
-        "vision": "ollama_vision"
-      }
+
+    "alibaba:wan2.2-t2v-plus": {
+      "api_key_name": "alibaba",
+      "families": { "video_gen": "alibaba_video_gen" },
+      "api_model_name": "wan2.2-t2v-plus"
     },
+    "alibaba:wan2.1-t2v-turbo": {
+      "api_key_name": "alibaba",
+      "families": { "video_gen": "alibaba_video_gen" },
+      "api_model_name": "wan2.1-t2v-turbo"
+    },
+
+    "alibaba:wan2.5-t2v-preview": {
+      "api_key_name": "alibaba",
+      "families": { "video_gen": "alibaba_video_gen" },
+      "api_model_name": "wan2.5-t2v-preview"
+    },
+
     "ollama:qwen3-vl:30b": {
-      "families": {
-        "text": "ollama_text",
-        "vision": "ollama_vision"
-      }
-    },
-    "ollama:gemma3:12b": {
-      "families": {
-        "text": "ollama_text",
-        "vision": "ollama_vision_generate"
-      }
-    },
-    "ollama:gemma3:4b": {
-      "families": {
-        "text": "ollama_text",
-        "vision": "ollama_vision_generate"
-      }
-    },
-    "ollama:qwen2:7b": {
-      "families": {
-        "text": "ollama_text"
-      }
+      "api_model_name": "qwen3-vl:30b",
+      "families": { 
+        "text": "ollama_text", 
+        "vision": "ollama_vision" }
     },
     "ollama:qwen3:30b": {
-      "families": {
-        "text": "ollama_text"
-      }
+      "api_model_name": "qwen3:30b",
+      "families": { 
+        "text": "ollama_text" }
     },
-    "ollama:deepseek-r1:8b": {
-      "families": {
-        "text": "ollama_text"
-      }
+    "ollama:gemma3:12b": {
+      "api_model_name": "gemma3:12b",
+      "families": { 
+        "text": "ollama_text", 
+        "vision": "ollama_vision" }
     },
     "ollama:llama3.2": {
-      "families": {
-        "text": "ollama_text"
-      }
+      "families": { "text": "ollama_text" }
+    },
+
+    "ollama:llama3.2-vision": {
+      "api_model_name": "llama3.2-vision:latest",
+      "families": { 
+        "text": "ollama_text", 
+        "vision": "ollama_vision" }
+    },
+    "ollama:mistral-small:latest": {
+      "api_model_name": "mistral-small:latest",
+      "families": { 
+        "text": "ollama_text" }
+    },
+    "ollama:deepseek-r1:8b": {
+      "families": { "text": "ollama_text" }
+    },
+    "ollama:llava": {
+      "families": { "text": "ollama_text", "vision": "ollama_vision" }
+    },
+    "ollama:x/z-image-turbo": {
+      "api_model_name": "x/z-image-turbo",
+      "families": { "image_gen": "ollama_image_gen" }
+    },
+    "ollama:x/flux2-klein:9b": {
+      "api_model_name": "x/flux2-klein:9b",
+      "families": { "image_gen": "ollama_image_gen" }
+    },
+    "ollama:x/flux2-klein:4b": {
+      "api_model_name": "x/flux2-klein:4b",
+      "families": { "image_gen": "ollama_image_gen" }
     },
     "perplexity:sonar": {
       "api_key_name": "perplexity",
-      "families": {
-        "text": "openai_compatible"
-      },
+      "families": { "text": "openai_compatible" },
       "url_template": "https://api.perplexity.ai/chat/completions"
     },
     "huggingface:gpt-oss-120b": {
       "api_key_name": "hugging_face",
-      "families": {
-        "text": "openai_compatible"
-      },
+      "families": { "text": "openai_compatible" },
       "url_template": "https://router.huggingface.co/v1/chat/completions",
       "api_model_name": "openai/gpt-oss-120b:fastest"
     },
@@ -319,63 +376,7 @@
       }
     },
     "anthropic:claude-haiku-4-5": {
-      "inherit_from": "claude-haiku-4-5-20251001"
-    },
-    "infomaniak:whisper": {
-      "api_key_name": "infomaniak",
-      "families": {
-        "audio": "infomaniak_whisper"
-      }
-    },
-    "openai:tts-1": {
-      "api_key_name": "openai",
-      "families": {
-        "speech_gen": "openai_tts_api"
-      },
-      "url_template": "https://api.openai.com/v1/audio/speech"
-    },
-    "openai:tts-1-hd": {
-      "api_key_name": "openai",
-      "families": {
-        "speech_gen": "openai_tts_api"
-      },
-      "url_template": "https://api.openai.com/v1/audio/speech"
-    },
-    "infomaniak:flux-schnell": {
-      "api_key_name": "infomaniak",
-      "families": {
-        "image_gen": "openai_image_gen_api"
-      },
-      "api_model_name": "flux",
-      "url_template": "https://api.infomaniak.com/1/ai/$infomaniak_product/openai/images/generations"
-    },
-    "openai:dall-e-3": {
-      "api_key_name": "openai",
-      "families": {
-        "image_gen": "openai_image_gen_api"
-      },
-      "url_template": "https://api.openai.com/v1/images/generations"
-    },
-    "alibaba:wan2.2-t2v-plus": {
-      "api_key_name": "alibaba",
-      "families": {
-        "video_gen": "alibaba_video_gen"
-      },
-      "api_model_name": "wan2.2-t2v-plus"
-    },
-    "alibaba:wan2.1-t2v-turbo": {
-      "api_key_name": "alibaba",
-      "families": {
-        "video_gen": "alibaba_video_gen"
-      },
-      "api_model_name": "wan2.1-t2v-turbo"
-    },
-    "alibaba:wan2.5-t2v-preview": {
-      "api_key_name": "alibaba",
-      "families": {
-        "video_gen": "alibaba_video_gen"
-      },
-      "api_model_name": "wan2.5-t2v-preview"
+      "inherit_from": "anthropic:claude-haiku-4-5-20251001"
     }
   }
 }

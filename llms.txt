@@ -15,7 +15,7 @@ CONCEPT:
 - Level 2: Models = Assignment of families to specific models
 
 FAMILIES (Built-in Recipes):
-- "openai_compatible": OpenAI-style APIs (DeepSeek, Infomaniak, Azure, etc.)
+- "openai_compatible": OpenAI-style APIs (DeepSeek, Infomaniak, Azure, Moonshot, Zhipu, Baidu, MiniMax, Perplexity, HuggingFace, etc.)
 - "google_sdk_text": Google Gemini SDK integration
 - "google_sdk_vision": Google Gemini vision via SDK
 - "ollama_text": Local Ollama text generation
@@ -23,12 +23,15 @@ FAMILIES (Built-in Recipes):
 - "anthropic_api": Anthropic Claude via HTTP
 - "anthropic_vision_api": Anthropic Claude vision via HTTP
 - "alibaba_api": Alibaba Qwen text generation
+- "alibaba_image_gen": Alibaba Qwen image generation
 - "alibaba_video_gen": Alibaba video generation with async polling
 - "huggingface_api": HuggingFace model router
+- "infomaniak_text": Infomaniak text models (OpenAI-compatible)
 - "infomaniak_whisper": Infomaniak Whisper STT with file upload & polling
+- "infomaniak_image_gen": Infomaniak image generation (Flux, SDXL)
 - "openai_tts_api": OpenAI Text-to-Speech (binary output)
 - "openai_image_gen_api": OpenAI DALL-E image generation
-- "minimax_api": MiniMax model API
+- "ollama_image_gen": Ollama local image generation (Flux, Z-image)
 
 EXTENSIBILITY:
 - Can register custom families at runtime
@@ -167,8 +170,8 @@ DESCRIPTION:
   Vision/multimodal analysis on images.
 
 PARAMETERS:
-  provider (str): Vision-capable provider (openai, google, anthropic, ollama, moonshot)
-  model_id (str): Vision model (e.g., gpt-4o, gemini-2.5-flash)
+  provider (str): Vision-capable provider (openai, google, anthropic, ollama, moonshot, zhipu)
+  model_id (str): Vision model (e.g., gpt-4o, gemini-2.5-flash, qwen3-vl)
   image_input (bytes | PIL.Image): Image data
     - Bytes: raw image file content
     - PIL.Image: Python Imaging Library object
@@ -206,8 +209,8 @@ DESCRIPTION:
   Generate images from text prompts.
 
 PARAMETERS:
-  provider (str): Image generation provider (openai, infomaniak)
-  model_id (str): Model (dall-e-3, flux-schnell, sdxl-lightning)
+  provider (str): Image generation provider (openai, infomaniak, alibaba, ollama)
+  model_id (str): Model (dall-e-3, flux-schnell, flux2, z-image, qwen-image-max)
   prompt (str): Image description
   size (str, optional): Image dimensions (e.g., "1024x1024", "1280x720")
   quality (str, optional): Output quality (hd, standard)
@@ -315,7 +318,7 @@ DESCRIPTION:
 
 PARAMETERS:
   provider (str): Video provider (alibaba)
-  model_id (str): Model (wan2.1-t2v-turbo, wan2.2-t2v-plus)
+  model_id (str): Model (wan2.1-t2v-turbo, wan2.2-t2v-plus, wan2.5-t2v-preview)
   prompt (str): Video description
   size (str, optional): Video dimensions (e.g., "1280*720")
   duration (int, optional): Video length in seconds
@@ -423,12 +426,12 @@ anthropic:claude-haiku-4-5-20251001
   HEADERS: x-api-key, anthropic-version
 
 infomaniak:apertus-70b
-  FAMILY: openai_compatible
+  FAMILY: infomaniak_text
   API_URL: https://api.infomaniak.com/2/ai/$infomaniak_product/openai/v1/chat/completions
   API_MODEL: swiss-ai/Apertus-70B-Instruct-2509
 
 infomaniak:mixtral
-  FAMILY: openai_compatible
+  FAMILY: infomaniak_text
   API_URL: https://api.infomaniak.com/1/ai/$infomaniak_product/openai/chat/completions
 
 alibaba:qwen-turbo
@@ -450,10 +453,6 @@ ollama:llama3.2
   LOCAL: YES
   URL_TEMPLATE: $ollama_url/api/chat
 
-ollama:qwen2:7b
-  FAMILY: ollama_text
-  LOCAL: YES
-
 ollama:qwen3:30b
   FAMILY: ollama_text
   LOCAL: YES
@@ -462,18 +461,53 @@ ollama:deepseek-r1:8b
   FAMILY: ollama_text
   LOCAL: YES
 
-ollama:gemma3:1b, gemma3:4b, gemma3:12b
+ollama:mistral-small
   FAMILY: ollama_text
   LOCAL: YES
-  VISION: YES (for 12b, 4b)
+
+ollama:gemma3:1b
+  FAMILY: ollama_text
+  LOCAL: YES
+
+ollama:gemma3:4b
+  FAMILY: ollama_text
+  LOCAL: YES
+  VISION: YES
+
+ollama:gemma3:12b
+  FAMILY: ollama_text
+  LOCAL: YES
+  VISION: YES
+
+moonshot:kimi-k2.5
+  FAMILY: openai_compatible
+  API_URL: https://api.moonshot.ai/v1/chat/completions
+  API_MODEL: kimi-k2.5
 
 moonshot:kimi-k2-0905-preview
   FAMILY: openai_compatible
   API_URL: https://api.moonshot.ai/v1/chat/completions
 
+zhipu:glm-4.7
+  FAMILY: openai_compatible
+  API_URL: https://open.bigmodel.cn/api/paas/v4/chat/completions
+  API_MODEL: glm-4.7
+  VISION: YES
+
+baidu:ernie-3.5
+  FAMILY: openai_compatible
+  API_URL: https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions
+  API_MODEL: ernie-3.5-8k
+
+baidu:ernie-4.0
+  FAMILY: openai_compatible
+  API_URL: https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions
+  API_MODEL: ernie-4.0
+
 minimax:MiniMax-M2
   FAMILY: openai_compatible
   API_URL: https://api.minimax.io/v1/chat/completions
+  API_MODEL: MiniMax-M2
   PARSER: _parse_minimax_clean
 
 perplexity:sonar
@@ -485,23 +519,42 @@ huggingface:gpt-oss-120b
   API_URL: https://router.huggingface.co/v1/chat/completions
   API_MODEL: openai/gpt-oss-120b:fastest
 
+---
+
 ### VISION (MULTIMODAL)
 
 openai:gpt-4o
-  FAMILY: openai_vision_compatible
+  FAMILY: openai_compatible
   METHOD: invoke_image()
+  VISION: YES
+
+openai:gpt-5
+  FAMILY: openai_compatible
+  METHOD: invoke_image()
+  VISION: YES
 
 google:gemini-2.5-flash
   FAMILY: google_sdk_vision
   METHOD: invoke_image()
 
-anthropic:claude-haiku-4-5
+anthropic:claude-haiku-4-5-20251001
   FAMILY: anthropic_vision_api
   METHOD: invoke_image()
 
-moonshot:moonshot-v1-8k-vision-preview
-  FAMILY: openai_vision_compatible
+moonshot:kimi-k2.5
+  FAMILY: openai_compatible
   METHOD: invoke_image()
+  VISION: YES
+
+moonshot:kimi-vision-preview
+  FAMILY: openai_compatible
+  METHOD: invoke_image()
+  VISION: YES
+
+zhipu:glm-4.7
+  FAMILY: openai_compatible
+  METHOD: invoke_image()
+  VISION: YES
 
 ollama:llava
   FAMILY: ollama_vision
@@ -513,6 +566,18 @@ ollama:qwen3-vl:30b
   LOCAL: YES
   METHOD: invoke_image()
 
+ollama:gemma3:4b
+  FAMILY: ollama_vision
+  LOCAL: YES
+  METHOD: invoke_image()
+
+ollama:gemma3:12b
+  FAMILY: ollama_vision
+  LOCAL: YES
+  METHOD: invoke_image()
+
+---
+
 ### AUDIO (STT - Speech-to-Text)
 
 infomaniak:whisper
@@ -522,6 +587,8 @@ infomaniak:whisper
   FILE_UPLOAD: YES
   SUPPORTED_FORMATS: m4a, mp3, wav, webm, flac
 
+---
+
 ### SPEECH (TTS - Text-to-Speech)
 
 openai:tts-1
@@ -530,11 +597,7 @@ openai:tts-1
   OUTPUT_FORMAT: MP3 (binary)
   VOICES: nova, alloy, echo, fable, onyx, shimmer
 
-openai:tts-1-hd
-  FAMILY: openai_tts_api
-  METHOD: invoke_speech_generation()
-  OUTPUT_FORMAT: MP3 (binary)
-  QUALITY: HD
+---
 
 ### IMAGE GENERATION
 
@@ -544,13 +607,31 @@ openai:dall-e-3
   API_URL: https://api.openai.com/v1/images/generations
 
 infomaniak:flux-schnell
-  FAMILY: openai_image_gen_api
+  FAMILY: infomaniak_image_gen
   METHOD: invoke_image_generation()
   API_URL: https://api.infomaniak.com/1/ai/$infomaniak_product/openai/images/generations
 
-infomaniak:sdxl-lightning
-  FAMILY: openai_image_gen_api
+alibaba:qwen-image-max
+  FAMILY: alibaba_image_gen
   METHOD: invoke_image_generation()
+  API_URL: https://dashscope-intl.aliyuncs.com/api/v1/services/aigc/text-2-image/image-synthesis
+
+ollama:flux2-klein:4b
+  FAMILY: ollama_image_gen
+  LOCAL: YES
+  METHOD: invoke_image_generation()
+
+ollama:flux2-klein:9b
+  FAMILY: ollama_image_gen
+  LOCAL: YES
+  METHOD: invoke_image_generation()
+
+ollama:z-image-turbo
+  FAMILY: ollama_image_gen
+  LOCAL: YES
+  METHOD: invoke_image_generation()
+
+---
 
 ### VIDEO GENERATION
 
@@ -638,7 +719,7 @@ connector = IdealUniversalLLMConnector(
 
 ### OpenAI
 OPENAI_API_KEY: sk-...
-Required for: gpt-4o, gpt-3.5-turbo, tts-1, dall-e-3
+Required for: gpt-4o, gpt-3.5-turbo, gpt-5, tts-1, dall-e-3
 
 ### Google
 GOOGLE_API_KEY: AIza...
@@ -655,7 +736,7 @@ Required for: deepseek-chat, deepseek-reasoner
 ### Alibaba
 ALIBABA_API_KEY: sk-...
 ALIBABA_MODEL: (optional, defaults to qwen-turbo)
-Required for: qwen-turbo, qwen-plus, qwen3-max, wan2.1-t2v-turbo
+Required for: qwen-turbo, qwen-plus, qwen3-max, qwen-image-max, wan2.1-t2v-turbo
 
 ### Infomaniak
 INFOMANIAK_AI_TOKEN: ...
@@ -664,7 +745,16 @@ Required for: apertus-70b, mixtral, whisper, flux-schnell
 
 ### Moonshot (Kimi)
 MOONSHOT_API_KEY: ...
-Required for: kimi-k2-0905-preview
+Required for: kimi-k2.5, kimi-k2-0905-preview
+
+### Zhipu (GLM)
+ZHIPU_API_KEY: ...
+Required for: glm-4.7
+
+### Baidu
+BAIDU_API_KEY: ...
+BAIDU_SECRET_KEY: ...
+Required for: ernie-3.5, ernie-4.0
 
 ### MiniMax
 MINIMAX_API_KEY: ...
@@ -729,7 +819,6 @@ def my_node(state):
 INTEGRATION_TYPE: Direct method calls
 COMPATIBLE_WITH: LangGraph nodes, LangChain chains
 NO_WRAPPER_NEEDED: True
-
 
 ### Pattern: Service Layer (Clean Architecture)
 
@@ -862,7 +951,7 @@ MODALITIES_SUPPORTED:
 - Streaming: invoke_stream()
 
 PROVIDERS_SUPPORTED: 15+
-- Commercial: OpenAI, Google, Anthropic, DeepSeek, Alibaba, Infomaniak, Moonshot, MiniMax, Perplexity
+- Commercial: OpenAI, Google, Anthropic, DeepSeek, Alibaba, Infomaniak, Moonshot, Zhipu, Baidu, MiniMax, Perplexity, HuggingFace
 - Open-source: Ollama (local)
 
 EXTENSIBILITY:
@@ -891,6 +980,7 @@ PyPI: https://pypi.org/project/ideal-ai/
 Colab: https://colab.research.google.com/github/Devgoodcode/ideal-ai/blob/main/examples/demo_ideal_universal_connector.ipynb
 HuggingFace: https://huggingface.co/spaces/Idealcom/ideal-ai-llm-connector-demo
 YouTube: https://youtu.be/f1DwFRpo2HA
+Website: https://ia-agence.ai/ideal-ai-universal-llm-connector
 
 ---
 
