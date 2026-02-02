@@ -1,8 +1,8 @@
-# 🧩 Ideal AI - Universal LLM Connector
+# 🔌 Ideal AI - Universal LLM Connector
 
 > **One Connector to Rule Them All**
 
-A production-ready, Open Source **Python LLM Connector** providing a unified interface for **Text, Vision, Audio, Image & Video** across 15+ providers (DeepSeek, Ollama, OpenAI, Alibaba, etc.).
+A production-ready, Open Source **Python LLM Connector** providing a unified interface for **Text, Vision, Audio, Image & Video** across 15+ providers (Ollama, OpenAI, DeepSeek, Qwen, Alibaba, Baidu, Minimax, Zhipu AI, Google, Infomaniak, etc.).
 
 Features **dynamic model injection** (add new providers at runtime without code changes) and native support for **Smolagents** & **LangChain** workflows.
 
@@ -80,24 +80,27 @@ result = connector.invoke_image_generation(
 # result["images"] contains base64 or URLs
 ```
 
-## 🎯 Pre-Configured Providers (Out-of-the-Box)
+## 🎯 Pre-Configured Providers & Models (Out-of-the-Box)
 
 The following providers are pre-registered in `config.json` for immediate use.
 **Note:** You can easily **inject any other model** or provider (OpenAI-compatible, Ollama, etc.) at runtime without changing the package code.
 
 | Provider | Text | Vision | Audio | Speech | Image Gen | Video Gen |
 |----------|:----:|:------:|:-----:|:------:|:---------:|:---------:|
-| **OpenAI** | ✅ | ✅ | - | ✅ | ✅ | - |
-| **Google (Gemini)** | ✅ | ✅ | - | - | - | - |
-| **Anthropic (Claude)** | ✅ | ✅ | - | - | - | - |
-| **Ollama (Local)** | ✅ | ✅ | - | - | - | - |
-| **Alibaba (Qwen)** | ✅ | - | - | - | - | ✅ |
-| **Infomaniak** | ✅ | - | ✅ | - | ✅ | - |
-| **DeepSeek** | ✅ | - | - | - | - | - |
-| **Moonshot AI** | ✅ | ✅ | - | - | - | - |
-| **Perplexity** | ✅ | - | - | - | - | - |
-| **Hugging Face** | ✅ | - | - | - | - | - |
-| **MiniMax** | ✅ | - | - | - | - | - |
+| **OpenAI** | ✅<br><small>gpt-4o, 3.5, 5</small> | ✅<br><small>gpt-4o, 5</small> | - | ✅<br><small>tts-1</small> | ✅<br><small>dall-e-3</small> | - |
+| **Google** | ✅<br><small>gemini-2.5</small> | ✅<br><small>gemini-2.5</small> | - | - | - | - |
+| **Anthropic** | ✅<br><small>claude-haiku-4.5</small> | ✅<br><small>claude-haiku-4.5</small> | - | - | - | - |
+| **Ollama** | ✅<br><small>llama3.2, r1, qwen3</small> | ✅<br><small>gemma3, llava, qwen3-vl</small> | - | - | ✅<br><small>flux2 (4b/9b), z-image</small> | - |
+| **Alibaba** | ✅<br><small>qwen3-max, plus, turbo</small> | - | - | - | ✅<br><small>qwen-image-max</small> | ✅<br><small>wan2.1-2.5</small> |
+| **Infomaniak** | ✅<br><small>apertus-70b, mixtral</small> | - | ✅<br><small>whisper</small> | - | ✅<br><small>flux-schnell</small> | - |
+| **DeepSeek** | ✅<br><small>V3, R1</small> | - | - | - | - | - |
+| **Moonshot** | ✅<br><small>kimi-k2.5</small> | ✅<br><small>kimi-vision</small> | - | - | - | - |
+| **Zhipu AI** | ✅<br><small>glm-4.7</small> | ✅<br><small>glm-4.7</small> | - | - | - | - |
+| **Baidu** | ✅<br><small>ernie-3.5, 4.0</small> | - | - | - | - | - |
+| **Perplexity** | ✅<br><small>sonar</small> | - | - | - | - | - |
+| **Hugging Face** | ✅<br><small>gpt-oss-120b</small> | - | - | - | - | - |
+| **MiniMax** | ✅<br><small>M2</small> | - | - | - | - | - |
+
 
 ## 📚 Advanced Usage
 
@@ -346,18 +349,24 @@ Check the `examples/` folder for comprehensive demos:
 # Open demo notebook
 jupyter notebook examples/demo_ideal_universal_connector.ipynb
 ```
+The demo notebook covers **13 comprehensive capabilities** in a structured, progressive order:
 
-The demo notebook covers the following capabilities in order:
-- 1️⃣ **Text Generation Loop**: Unified iteration over OpenAI, Google, DeepSeek, Alibaba, etc.
-- 2️⃣ **Vision/Multimodal**: Image analysis with Gemini, GPT-4o or Claude.
-- 3️⃣ **Image Generation**: Creation with DALL-E 3 or Flux.
-- 4️⃣ **Audio Transcription**: Speech-to-Text (STT) with Whisper.
-- 5️⃣ **Speech Synthesis**: Text-to-Speech (TTS) with OpenAI.
-- 6️⃣ **Video Generation**: Async video creation with Alibaba Wan.
-- 7️⃣ **Runtime Injection**: How to add custom models/providers on the fly.
-- 8️⃣ **Conversational Memory**: Handling multi-turn chat history.
-- 9️⃣ **AI Agents**: Integration with Hugging Face's smolagents.
-- 🧪 **Interactive UI (Bonus)**: A full widget-based dashboard to test all modalities (including Voice Chat) without code.
+| Step | Feature | Description |
+|------|---------|-------------|
+| 0️⃣ | **Installation** | Quick setup via `pip install -U ideal-ai` |
+| 1️⃣ | **Text Generation Loop** | Unified iteration over 15+ providers |
+| 2️⃣ | **Vision/Multimodal** | Image analysis (Gemini, GPT-4o, Claude, Kimi, GLM, Qwen-VL) |
+| 3️⃣ | **Image Generation** | Create art (DALL-E 3, Flux, Z-image, Qwen-Image) |
+| 4️⃣ | **Audio Transcription** | STT with Infomaniak Whisper with auto-polling |
+| 5️⃣ | **Speech Synthesis (TTS)** | Natural text-to-speech with OpenAI |
+| 6️⃣ | **Video Generation** | Async video creation with Alibaba Wan  (auto-polling) |
+| 7️⃣ | **Runtime Injection** | Register custom models/providers on the fly |
+| 8️⃣ | **Conversational Memory** | Multi-turn chat history across providers |
+| 9️⃣ | **AI Agents** | Autonomous agents with **smolagents** |
+| 🔟 | **Custom Parsers** | Handle proprietary API response formats |
+| 1️⃣1️⃣ | **Debugging Mode** | Inspect raw API payloads & responses |
+| 1️⃣2️⃣ | **Interactive Testing Interface** | **Bonus**: All-in-one graphical dashboard for all modalities |
+| 1️⃣3️⃣ | **Summary** | Next steps & Acknowledgments |
 
 ## 🔑 Environment Variables
 
@@ -379,34 +388,47 @@ These models are pre-registered in `config.json` for immediate use.
 **Remember:** You are not limited to this list! You can inject **any** new model or provider at runtime.
 
 ### Text Generation
-- OpenAI: `gpt-4o`, `gpt-3.5-turbo`, `gpt-5`
-- Google: `gemini-2.5-flash`
-- DeepSeek: `deepseek-chat` (V3), `deepseek-reasoner` (R1)
-- Infomaniak: `apertus-70b` (Souverain), `mixtral`
-- Anthropic: `claude-haiku-4-5`
-- Alibaba: `qwen-turbo`, `qwen-plus`, `qwen3-max`
-- Ollama: `llama3.2`, `qwen2:7b`, `deepseek-r1:8b`
+- **OpenAI**: `gpt-4o`, `gpt-3.5-turbo`, `gpt-5`
+- **Google**: `gemini-2.5-flash`
+- **DeepSeek**: `V3` (deepseek-chat), `R1` (deepseek-reasoner)
+- **Infomaniak**: `apertus-70b`, `mixtral`
+- **Anthropic**: `claude-haiku-4-5`
+- **Alibaba**: `qwen-turbo`, `qwen-plus`, `qwen3-max`
+- **Ollama**: `llama3.2`, `qwen3:30b`, `deepseek-r1:8b`, `mistral-small`
+- **Moonshot**: `kimi-k2.5`, `kimi-k2-0905-preview`
+- **Zhipu AI**: `glm-4.7`
+- **Baidu**: `ernie-3.5`, `ernie-4.0`
+- **Perplexity**: `sonar`
+- **Hugging Face**: `gpt-oss-120b`
+- **MiniMax**: `MiniMax-M2`
 
 ### Vision/Multimodal
-- OpenAI: `gpt-4o`
-- Google: `gemini-2.5-flash`
-- Anthropic: `claude-haiku-4-5`
-- Ollama: `llava`, `qwen3-vl:30b`
+- **OpenAI**: `gpt-4o`, `gpt-5`
+- **Google**: `gemini-2.5-flash`
+- **Anthropic**: `claude-haiku-4-5`
+- **Ollama**: `llama3.2-vision`, `llava`, `qwen3-vl:30b`, `gemma3`
+- **Moonshot**: `kimi-vision` (moonshot-v1-8k-vision-preview)
+- **Zhipu**: `glm-4.7`
 
-### Audio Transcription
-- Infomaniak: `whisper`
+### Audio Transcription (STT)
+- **Infomaniak**: `whisper`
 
-### Speech Synthesis
-- OpenAI: `tts-1`, `tts-1-hd`
+### Speech Synthesis (TTS)
+- **OpenAI**: `tts-1`
 
 ### Image Generation
-- OpenAI: `dall-e-3`
-- Infomaniak: `flux-schnell`, `sdxl-lightning`
+- **OpenAI**: `dall-e-3`
+- **Infomaniak**: `flux-schnell`
+- **Alibaba**: `qwen-image-max`
+- **Ollama**: `flux2-klein:4b`, `flux2-klein:9b`, `z-image-turbo`
 
 ### Video Generation
-- Alibaba: `wan2.1-t2v-turbo`, `wan2.2-t2v-plus`, `wan2.5-t2v-preview`
+- **Alibaba**: `wan2.1-t2v-turbo`, `wan2.2-t2v-plus`, `wan2.5-t2v-preview`
+
+---
 
 ## 📖 Documentation
+
 
 For detailed API documentation, see:
 
@@ -449,7 +471,7 @@ This project is a labor of love, built on the shoulders of giants. Special thank
     * **Perplexity**: For laying down the initial code foundation.
     * **Google Gemini**: For the massive refactoring, patience, and pedagogical support in improving the core logic.
     * **Kilo Code (Kimi & Claude)**: For the security testing, English translation, and PyPI publishing preparation.
-* **The Model Providers**: Ollama, Alibaba, Moonshot, MiniMax, OpenAI, Perplexity, Hugging Face, DeepSeek, Apertus, Anthropic, LangChain and Infomaniak for their incredible technologies and platforms.
+* **The Model Providers**: Ollama, Alibaba, Moonshot, MiniMax, OpenAI, Perplexity, Hugging Face, DeepSeek, Google, Zhipu AI, Baidu, Apertus, Anthropic, LangChain and Infomaniak for their incredible technologies and platforms.
 * **The Open Source Community**: For the endless passion and knowledge sharing.
 
 Built with ❤️ and passion, inspired by the open source AI community's need for a truly universal, maintainable LLM interface.

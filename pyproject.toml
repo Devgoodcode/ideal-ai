@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ideal-ai"
-version = "0.2.2"
+version = "0.3.0"
 description = "The Universal Python LLM Connector. Unified API for ChatGPT, Ollama, DeepSeek, Gemini & Qwen. Native Multimodal support (Text, Vision, Audio, Video) for building AI Agents. 100% Open Source."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -77,8 +77,8 @@ dependencies = [
     "requests>=2.32.0",
     "pillow>=10.0.0",
     "python-dotenv>=1.0.0",
-    "smolagents>=0.1.0",
-    "google-generativeai>=0.3.0",
+    "smolagents>=1.0.0", 
+    "google-genai>=1.0.0",
     "tabulate>=0.9.0"
 ]
 

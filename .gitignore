@@ -1,25 +1,110 @@
-# Distribution / Build
+# ============================================================================
+# Distribution & Build
+# ============================================================================
 dist/
 build/
 *.egg-info/
+*.egg
+wheels/
+pip-wheel-metadata/
 
-# Python cache
+# ============================================================================
+# Python Cache & Compilation
+# ============================================================================
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.compiled
 
-# Environnements virtuels
+# ============================================================================
+# Virtual Environments
+# ============================================================================
 .venv/
 venv/
 env/
+ENV/
+env.bak/
+venv.bak/
 
-# Jupyter Notebook checkpoints
+# ============================================================================
+# Jupyter Notebook & IPython
+# ============================================================================
 .ipynb_checkpoints/
+*/.ipynb_checkpoints/
+.ipython/
+.jupyter/
 
-# IDE settings (Mac & VSCode)
-.DS_Store
+# ============================================================================
+# Auto-generated Audio/Video/Media (from notebooks)
+# ============================================================================
+*.m4a
+*.mp3
+*.wav
+*.mp4
+*.webm
+*.mov
+*.avi
+examples/assets/*.m4a
+examples/assets/*.mp4
+
+# ============================================================================
+# IDE & Editor Settings
+# ============================================================================
 .vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.project
+.pydevproject
+.settings/
+*.sublime-project
+*.sublime-workspace
 
-# Variables d'environnement (SÉCURITÉ CRITIQUE ⛔)
+# ============================================================================
+# Environment Variables & Secrets (SECURITY CRITICAL ⛔)
+# ============================================================================
 .env
 .env.local
+.env.*.local
 api-key.env
+.env.prod
+*.key
+*.pem
+secrets.json
+
+# ============================================================================
+# OS & Temporary Files
+# ============================================================================
+.DS_Store
+Thumbs.db
+*.tmp
+*.log
+*.bak
+
+# ============================================================================
+# Test Coverage
+# ============================================================================
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+.tox/
+
+# ============================================================================
+# Type Checking
+# ============================================================================
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# ============================================================================
+# Package Lock Files (optional - depends on your workflow)
+# ============================================================================
+# Décommenter si vous voulez ignorer les lock files
+# poetry.lock
+# requirements.lock
