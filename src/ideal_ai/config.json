@@ -159,7 +159,37 @@
       "families": { "text": "openai_compatible" },
       "url_template": "https://api.deepseek.com/chat/completions",
       "api_model_name": "deepseek-reasoner"
+    }, 
+    "deepseek:v4-pro": {
+      "api_key_name": "deepseek",
+      "families": { "text": "openai_compatible" },
+      "url_template": "https://api.deepseek.com/chat/completions",
+      "api_model_name": "deepseek-v4-pro"
     },
+    "deepseek:v4-flash": {
+      "api_key_name": "deepseek",
+      "families": { "text": "openai_compatible" },
+      "url_template": "https://api.deepseek.com/chat/completions",
+      "api_model_name": "deepseek-v4-flash"
+    },
+    "mistral:small-4": {
+      "api_key_name": "mistral",
+      "families": { "text": "openai_compatible" },
+      "url_template": "https://api.mistral.ai/v1/chat/completions",
+      "api_model_name": "mistral-small-2603"
+    },
+    "xai:grok-4": {
+      "api_key_name": "xai",
+      "families": { "text": "openai_compatible" },
+      "url_template": "https://api.x.ai/v1/chat/completions",
+      "api_model_name": "grok-4-0709"
+    },
+    "alibaba:qwen3.6-35b": {
+      "api_key_name": "alibaba",
+      "families": { "text": "openai_compatible", "vision": "openai_vision_compatible" },
+      "url_template": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions",
+      "api_model_name": "qwen3.6-35b-a3b"
+    },    
     "infomaniak:apertus-70b": {
       "api_key_name": "infomaniak",
       "families": { "text": "openai_compatible" },
@@ -266,6 +296,19 @@
       "families": { "text": "openai_compatible" },
       "url_template": "https://api.minimax.io/v1/chat/completions",
       "parser": "_parse_minimax_clean"
+    },
+
+    "xiaomi:mimo-v2.5-pro": {
+      "api_key_name": "xiaomi",
+      "families": { "text": "openai_compatible" },
+      "api_model_name": "mimo-v2.5-pro",
+      "url_template": "https://api.xiaomimimo.com/v1/chat/completions"
+    },
+    "xiaomi:mimo-v2.5": {
+        "api_key_name": "xiaomi",
+        "families": { "text": "openai_compatible", "vision": "openai_vision_compatible" },
+        "api_model_name": "mimo-v2.5",
+        "url_template": "https://api.xiaomimimo.com/v1/chat/completions"
     },
     "alibaba:qwen-turbo": {
       "api_key_name": "alibaba",
