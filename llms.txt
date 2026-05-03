@@ -419,6 +419,16 @@ deepseek:deepseek-reasoner (R1)
   API_URL: https://api.deepseek.com/chat/completions
   API_MODEL: deepseek-reasoner
 
+deepseek:v4-pro
+  FAMILY: openai_compatible
+  API_URL: https://api.deepseek.com/chat/completions
+  API_MODEL: deepseek-v4-pro
+
+deepseek:v4-flash
+  FAMILY: openai_compatible
+  API_URL: https://api.deepseek.com/chat/completions
+  API_MODEL: deepseek-v4-flash
+
 anthropic:claude-haiku-4-5-20251001
   FAMILY: anthropic_api
   API_URL: https://api.anthropic.com/v1/messages
@@ -519,6 +529,33 @@ huggingface:gpt-oss-120b
   API_URL: https://router.huggingface.co/v1/chat/completions
   API_MODEL: openai/gpt-oss-120b:fastest
 
+mistral:small-4
+  FAMILY: openai_compatible
+  API_URL: https://api.mistral.ai/v1/chat/completions
+  API_MODEL: mistral-small-2603
+
+xai:grok-4
+  FAMILY: openai_compatible
+  API_URL: https://api.x.ai/v1/chat/completions
+  API_MODEL: grok-4-0709
+
+alibaba:qwen3.6-35b
+  FAMILY: openai_compatible
+  API_URL: https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions
+  API_MODEL: qwen3.6-35b-a3b
+  VISION: YES
+
+xiaomi:mimo-v2.5-pro
+  FAMILY: openai_compatible
+  API_URL: https://api.xiaomimimo.com/v1/chat/completions
+  API_MODEL: mimo-v2.5-pro
+
+xiaomi:mimo-v2.5
+  FAMILY: openai_compatible
+  API_URL: https://api.xiaomimimo.com/v1/chat/completions
+  API_MODEL: mimo-v2.5
+  VISION: YES
+
 ---
 
 ### VISION (MULTIMODAL)
@@ -575,6 +612,16 @@ ollama:gemma3:12b
   FAMILY: ollama_vision
   LOCAL: YES
   METHOD: invoke_image()
+
+alibaba:qwen3.6-35b
+  FAMILY: openai_vision_compatible
+  METHOD: invoke_image()
+  VISION: YES
+
+xiaomi:mimo-v2.5
+  FAMILY: openai_vision_compatible
+  METHOD: invoke_image()
+  VISION: YES
 
 ---
 
@@ -767,6 +814,18 @@ Required for: sonar
 ### Hugging Face
 HUGGING_FACE_API_KEY: ...
 Required for: gpt-oss-120b
+
+### Mistral
+MISTRAL_API_KEY: ...
+Required for: mistral:small-4
+
+### xAI (Grok)
+XAI_API_KEY: ...
+Required for: xai:grok-4
+
+### Xiaomi MiMo
+XIAOMI_API_KEY: ...
+Required for: xiaomi:mimo-v2.5, xiaomi:mimo-v2.5-pro
 
 ### Ollama (Local)
 OLLAMA_URL: http://localhost:11434 (default)

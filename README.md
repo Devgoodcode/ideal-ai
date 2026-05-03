@@ -2,7 +2,7 @@
 
 > **One Connector to Rule Them All**
 
-A production-ready, Open Source **Python LLM Connector** providing a unified interface for **Text, Vision, Audio, Image & Video** across 15+ providers (Ollama, OpenAI, DeepSeek, Qwen, Alibaba, Baidu, Minimax, Zhipu AI, Google, Infomaniak, etc.).
+A production-ready, Open Source **Python LLM Connector** providing a unified interface for **Text, Vision, Audio, Image & Video** across 15+ providers (Ollama, OpenAI, DeepSeek, Anthropic, Qwen, Xiaomi, xAI, Alibaba, Baidu, Minimax, Zhipu AI (Z.AI), Google, Infomaniak, etc.).
 
 Features **dynamic model injection** (add new providers at runtime without code changes) and native support for **Smolagents** & **LangChain** workflows.
 
@@ -13,7 +13,7 @@ Features **dynamic model injection** (add new providers at runtime without code 
 
 ## ✨ Features
 
-- **🔗 Universal LLM Connector** - One unified interface for 15+ providers (OpenAI, Ollama, DeepSeek, Google, etc.).
+- **🔗 Universal LLM Connector** - One unified interface for 15+ providers (OpenAI, Ollama, Anthropic, DeepSeek, Google, Xiaomi, Baidu, Minimax, xAI, Zhipu AI, Alibaba, etc.).
 - **🎯 Multi-Modal Powerhouse** - Text, Vision, Audio (STT), Image Gen, Video Gen (Wan 2.1), Speech (TTS).
 - **💉 Dynamic Model Injection** - Register new models or providers at runtime without changing source code.
 - **🤖 Agent & Workflow Ready** - Native wrapper for **Smolagents** and fully compatible with **LangChain** / **LangGraph**.
@@ -80,7 +80,7 @@ result = connector.invoke_image_generation(
 # result["images"] contains base64 or URLs
 ```
 
-## 🎯 Pre-Configured Providers & Models (Out-of-the-Box)
+## 🎯 Pre-Configured Providers & Models – Fully Extensible (Inject Any Provider/Model at Runtime)
 
 The following providers are pre-registered in `config.json` for immediate use.
 **Note:** You can easily **inject any other model** or provider (OpenAI-compatible, Ollama, etc.) at runtime without changing the package code.
@@ -91,15 +91,18 @@ The following providers are pre-registered in `config.json` for immediate use.
 | **Google** | ✅<br><small>gemini-2.5</small> | ✅<br><small>gemini-2.5</small> | - | - | - | - |
 | **Anthropic** | ✅<br><small>claude-haiku-4.5</small> | ✅<br><small>claude-haiku-4.5</small> | - | - | - | - |
 | **Ollama** | ✅<br><small>llama3.2, r1, qwen3</small> | ✅<br><small>gemma3, llava, qwen3-vl</small> | - | - | ✅<br><small>flux2 (4b/9b), z-image</small> | - |
-| **Alibaba** | ✅<br><small>qwen3-max, plus, turbo</small> | - | - | - | ✅<br><small>qwen-image-max</small> | ✅<br><small>wan2.1-2.5</small> |
+| **Alibaba** | ✅<br><small>qwen3-max, plus, turbo, qwen3.6-35b</small> | ✅<br><small>qwen3.6-35b</small> | - | - | ✅<br><small>qwen-image-max</small> | ✅<br><small>wan2.1-2.5</small> |
 | **Infomaniak** | ✅<br><small>apertus-70b, mixtral</small> | - | ✅<br><small>whisper</small> | - | ✅<br><small>flux-schnell</small> | - |
-| **DeepSeek** | ✅<br><small>V3, R1</small> | - | - | - | - | - |
+| **DeepSeek** | ✅<br><small>V3, R1, V4-Pro, V4-Flash</small> | - | - | - | - | - |
 | **Moonshot** | ✅<br><small>kimi-k2.5</small> | ✅<br><small>kimi-vision</small> | - | - | - | - |
 | **Zhipu AI** | ✅<br><small>glm-4.7</small> | ✅<br><small>glm-4.7</small> | - | - | - | - |
 | **Baidu** | ✅<br><small>ernie-3.5, 4.0</small> | - | - | - | - | - |
 | **Perplexity** | ✅<br><small>sonar</small> | - | - | - | - | - |
 | **Hugging Face** | ✅<br><small>gpt-oss-120b</small> | - | - | - | - | - |
 | **MiniMax** | ✅<br><small>M2</small> | - | - | - | - | - |
+| **Mistral** | ✅<br><small>Small 4</small> | - | - | - | - | - |
+| **xAI** | ✅<br><small>Grok 4</small> | - | - | - | - | - |
+| **Xiaomi** | ✅<br><small>MiMo-V2.5, V2.5-Pro</small> | ✅<br><small>MiMo-V2.5</small> | - | - | - | - |
 
 
 ## 📚 Advanced Usage
@@ -338,7 +341,7 @@ pip install -e .
 # Or build and install
 pip install build
 python -m build
-pip install dist/ideal_ai-0.1.0-py3-none-any.whl
+pip install dist/ideal_ai-*.whl
 ```
 
 ## 🧪 Running Examples
@@ -379,6 +382,9 @@ ANTHROPIC_API_KEY=sk-ant-...
 ALIBABA_API_KEY=sk-...
 INFOMANIAK_AI_TOKEN=...
 INFOMANIAK_PRODUCT_ID=...
+MISTRAL_API_KEY=...
+XAI_API_KEY=...
+XIAOMI_API_KEY=...
 OLLAMA_URL=http://localhost:11434
 ```
 
@@ -390,10 +396,10 @@ These models are pre-registered in `config.json` for immediate use.
 ### Text Generation
 - **OpenAI**: `gpt-4o`, `gpt-3.5-turbo`, `gpt-5`
 - **Google**: `gemini-2.5-flash`
-- **DeepSeek**: `V3` (deepseek-chat), `R1` (deepseek-reasoner)
+- **DeepSeek**: `V3` (deepseek-chat), `R1` (deepseek-reasoner), `V4-Pro`, `V4-Flash`
 - **Infomaniak**: `apertus-70b`, `mixtral`
 - **Anthropic**: `claude-haiku-4-5`
-- **Alibaba**: `qwen-turbo`, `qwen-plus`, `qwen3-max`
+- **Alibaba**: `qwen-turbo`, `qwen-plus`, `qwen3-max`, `qwen3.6-35b`
 - **Ollama**: `llama3.2`, `qwen3:30b`, `deepseek-r1:8b`, `mistral-small`
 - **Moonshot**: `kimi-k2.5`, `kimi-k2-0905-preview`
 - **Zhipu AI**: `glm-4.7`
@@ -401,6 +407,9 @@ These models are pre-registered in `config.json` for immediate use.
 - **Perplexity**: `sonar`
 - **Hugging Face**: `gpt-oss-120b`
 - **MiniMax**: `MiniMax-M2`
+- **Mistral**: `mistral-small-2603`
+- **xAI**: `grok-4-0709`
+- **Xiaomi**: `mimo-v2.5`, `mimo-v2.5-pro`
 
 ### Vision/Multimodal
 - **OpenAI**: `gpt-4o`, `gpt-5`
@@ -409,6 +418,8 @@ These models are pre-registered in `config.json` for immediate use.
 - **Ollama**: `llama3.2-vision`, `llava`, `qwen3-vl:30b`, `gemma3`
 - **Moonshot**: `kimi-vision` (moonshot-v1-8k-vision-preview)
 - **Zhipu**: `glm-4.7`
+- **Alibaba**: `qwen3.6-35b`
+- **Xiaomi**: `mimo-v2.5`
 
 ### Audio Transcription (STT)
 - **Infomaniak**: `whisper`
