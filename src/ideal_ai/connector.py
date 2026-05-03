@@ -1235,14 +1235,21 @@ class IdealUniversalLLMConnector:
     # CALLERS (Used by families)
     # ====================================================================
 
-    def call_google_sdk_text(self, payload: dict, context) -> Any:
+    def _call_google_sdk_text(self, payload: dict, **context) -> Any:
         """Call Google Gemini SDK text-only."""
         if not genai_client:
             raise ImportError("Please install google-genai: pip install google-genai")
-        apikey = context.get("apikey")
-        if not apikey:
-            raise ValueError("Gemini API key missing expected in resolved config")
-        client = genai_client.Client(api_key=apikey)
+
+        api_key = context.get("api_key") or os.getenv("GEMINI_API_KEY")
+        if not api_key:
+            raise ValueError("Gemini API key missing (api_key or GEMINI_API_KEY).")
+
+        model_id = context.get("model_id")
+        if not model_id:
+            raise ValueError("model_id missing in Google SDK context.")
+
+        client = genai_client.Client(api_key=api_key)
+
         messages_list = payload.get("messages", [])
         last = None
         if isinstance(messages_list, list):
@@ -1253,11 +1260,13 @@ class IdealUniversalLLMConnector:
                 elif isinstance(msg, str):
                     last = msg
                     break
+
         if not last:
-            raise ValueError("No user message found for Gemini.")
+            raise ValueError("No user message found for Gemini text call.")
+
         response = client.models.generate_content(
-            model=context.get("modelid"),
-            contents=last
+            model=model_id,
+            contents=last,
         )
         return response
 
@@ -1312,20 +1321,28 @@ class IdealUniversalLLMConnector:
             
         return response.json()
 
-    def call_google_sdk_vision(self, payload: dict, context) -> Any:
+    def _call_google_sdk_vision(self, payload: dict, **context) -> Any:
         """Call Google Gemini SDK with multimodal content."""
         if not genai_client:
             raise ImportError("Please install google-genai: pip install google-genai")
-        apikey = context.get("apikey")
-        if not apikey:
-            raise ValueError("Gemini API key missing expected in resolved config")
-        client = genai_client.Client(api_key=apikey)
-        contentlist = payload.get("content")
-        if not contentlist or len(contentlist) < 2:
+
+        api_key = context.get("api_key") or os.getenv("GEMINI_API_KEY")
+        if not api_key:
+            raise ValueError("Gemini API key missing (api_key or GEMINI_API_KEY).")
+
+        model_id = context.get("model_id")
+        if not model_id:
+            raise ValueError("model_id missing in Google SDK context.")
+
+        client = genai_client.Client(api_key=api_key)
+
+        content_list = payload.get("content")
+        if not content_list or len(content_list) < 2:
             raise ValueError(f"Invalid vision payload for Gemini. Received: {payload}")
+
         response = client.models.generate_content(
-            model=context.get("modelid"),
-            contents=contentlist
+            model=model_id,
+            contents=content_list,
         )
         return response
 
