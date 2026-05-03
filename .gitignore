@@ -108,3 +108,4 @@ dmypy.json
 # Décommenter si vous voulez ignorer les lock files
 # poetry.lock
 # requirements.lock
+.kilo/
